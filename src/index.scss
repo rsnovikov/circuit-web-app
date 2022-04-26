@@ -1,0 +1,6 @@
+@import "../node_modules/scss-reset/src/scss/_reset.scss";
+
+[data-output-id]:hover {
+  fill-opacity: 1;
+  stroke: black;
+}
