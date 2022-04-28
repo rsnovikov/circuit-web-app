@@ -1,4 +1,4 @@
-import Element from "./core/element";
+import Element from "../core/element";
 
 class MenuPanel {
   element: SVGRectElement = document.createElementNS(

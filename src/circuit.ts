@@ -1,5 +1,5 @@
-import MenuPanel from "./menuPanel";
-import ModalBox from "./modalBox";
+import MenuPanel from "./components/menuPanel";
+import ModalBox from "./components/modalBox";
 import { roundTo } from "./utils/utils";
 import Element from "./core/element";
 import Lamp from "./elements/lamp";
@@ -72,10 +72,10 @@ class Circuit {
       const elementTarget: SVGGElement = (
         event.target as SVGPathElement
       ).closest("[data-element-id]");
-      if ((event.target as SVGElement).closest("[data-element-id]")) {
+      if (elementTarget) {
         this.selectedElement = [
           ...this.menuPanel.cirElements,
-          ...this.modalBox.circElements
+          ...(this.modalBox.circElements as Element[])
         ].find((elem) => {
           return elem.id === elementTarget.dataset.elementId;
         });
@@ -103,6 +103,9 @@ class Circuit {
         ) {
           this.selectedElement.setPosition(x, y);
         }
+      } else if (this.modalBox.currentWire) {
+        const { x, y } = getMousePosition(event);
+        this.modalBox.onWireMove(x, y);
       }
     };
     const endDrag = (event: MouseEvent) => {
@@ -146,33 +149,44 @@ class Circuit {
             );
           }
         } else if (this.selectedElement.parent === "box") {
-          if (
-            cord.x > this.modalBox.x1 &&
-            cord.x < this.modalBox.x2 &&
-            cord.y > this.modalBox.y1 &&
-            cord.y < this.modalBox.y2
-          ) {
-            this.selectedElement.setPosition(
-              roundTo(cord.x - this.offset.x),
-              roundTo(cord.y - this.offset.y)
-            );
-          } else {
-            console.log("за пределами");
-          }
+          this.selectedElement.setPosition(
+            roundTo(cord.x - this.offset.x),
+            roundTo(cord.y - this.offset.y)
+          );
         }
         this.selectedElement = null;
       }
     };
-    const onClick = (event: Event) => {
-      if ((event.target as SVGElement).dataset.outputId) {
-        this.modalBox.onOutputClick(event.target as SVGRectElement);
+    const onClick = (event: MouseEvent) => {
+      const cord = getMousePosition(event);
+      if (
+        cord.x > this.modalBox.x1 &&
+        cord.x < this.modalBox.x2 &&
+        cord.y > this.modalBox.y1 &&
+        cord.y < this.modalBox.y2
+      ) {
+        this.modalBox.onBoxClick(event);
       }
     };
+
+    const onContextMenu = (event: MouseEvent) => {
+      const cord = getMousePosition(event);
+      if (
+        cord.x > this.modalBox.x1 &&
+        cord.x < this.modalBox.x2 &&
+        cord.y > this.modalBox.y1 &&
+        cord.y < this.modalBox.y2
+      ) {
+        // this.contextMenu.open(event, this.modalBox.elements);
+      }
+    };
+
     this.layout.addEventListener("mousedown", startDrag);
     this.layout.addEventListener("mousemove", drag);
     this.layout.addEventListener("mouseup", endDrag);
     this.layout.addEventListener("mouseleave", endDrag);
     this.layout.addEventListener("click", onClick);
+    this.layout.addEventListener("contextmenu", onContextMenu);
   }
 }
 

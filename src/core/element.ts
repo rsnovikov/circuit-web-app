@@ -90,6 +90,7 @@ class Element {
         elOutput.setAttribute("stroke", "none");
         elOutput.setAttribute("stroke-width", "3");
         elOutput.dataset.outputId = output.id;
+        elOutput.style.display = parent === "menu" ? "none" : "block";
         this.layout.append(elOutput);
       });
     }
@@ -111,6 +112,13 @@ class Element {
   setParent(parent: "menu" | "box" = "box") {
     this.parent = parent;
     this.element.dataset.elementParent = parent;
+    if (parent === "box") {
+      const outputElems: NodeListOf<SVGElement> =
+        this.layout.querySelectorAll("[data-output-id]");
+      outputElems.forEach((outputEl) => {
+        outputEl.style.display = "block";
+      });
+    }
   }
 }
 
