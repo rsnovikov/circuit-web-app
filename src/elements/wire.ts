@@ -7,8 +7,10 @@ class Wire {
   y1: number;
   y2: number;
   id: string;
-
+  type = "wire";
   constructor(xStart: number, yStart: number, elem1: string) {
+    this.x1 = xStart;
+    this.y1 = yStart;
     this.element = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "line"
@@ -26,6 +28,8 @@ class Wire {
   }
 
   setPosition(x: number, y: number) {
+    this.x2 = x;
+    this.y2 = y;
     this.element.setAttribute("x2", String(x));
     this.element.setAttribute("y2", String(y));
   }
