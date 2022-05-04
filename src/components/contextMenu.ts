@@ -2,7 +2,8 @@ import Element from "../core/element";
 import Wire from "../elements/wire";
 
 class ContextMenu {
-  modules: HTMLElement[] = [];
+  element: HTMLElement = document.createElement("ui");
+  modules: string[] = ["Свойства", "Удалить", "Изменить цвет", "Повернуть"];
   layout: HTMLElement = document.querySelector(".contextMenu");
   flag: boolean = false;
 
@@ -12,10 +13,7 @@ class ContextMenu {
     this.layout.style.top = `${event.clientY}px`;
     this.layout.style.left = `${event.clientX}px`;
     this.layout.style.display = "inline-flex";
-    this.add("Свойства");
-    this.add("Удалить");
-    this.add("Изменить цвет");
-    this.add("Повернуть");
+    this.modules.forEach((el) => this.add(el));
   }
 
   add(toolName: string) {
@@ -24,6 +22,7 @@ class ContextMenu {
     el.classList.add("contextMenu__element");
     el.textContent = toolName;
     this.layout.append(el);
+    el.addEventListener("click", this.close.bind(this));
   }
 
   close(event: MouseEvent) {
@@ -31,6 +30,11 @@ class ContextMenu {
     this.layout.innerHTML = "";
     this.flag = false;
     this.layout.style.display = "none";
+  }
+
+  render(): HTMLElement {
+    this.element.classList.add("contextMenu");
+    return this.element;
   }
 }
 

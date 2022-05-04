@@ -42,6 +42,7 @@ class Circuit {
 
   start(): void {
     this.layout.append(this.menuPanel.render());
+    this.layout.append(this.contextMenu.render());
     this.layout.append(this.modalBox.render());
     const startX = this.menuPanel.xElement;
     this.modules.forEach((Module) => {
