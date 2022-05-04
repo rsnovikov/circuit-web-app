@@ -46,9 +46,11 @@ class ModalBox {
       this.onWirePut();
     }
   }
+
   onWirePut() {
     console.log();
   }
+
   onWireJoin(outputElem: SVGRectElement) {
     const { x, y, element } = this.getWirePosition(outputElem);
     this.currentWire.setPosition(x, y);
