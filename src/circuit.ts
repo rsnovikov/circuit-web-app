@@ -20,7 +20,7 @@ class Circuit {
     "http://www.w3.org/2000/svg",
     "svg"
   );
-  selectedElement: Element;
+  draggableElement: Element;
   offset: { x: number; y: number };
   menuPanel: MenuPanel;
   modalBox: ModalBox;
@@ -34,7 +34,7 @@ class Circuit {
     this.appBody.style.padding = "30px";
     this.layout.setAttribute("width", "750");
     this.layout.setAttribute("height", "750");
-    this.layout.setAttribute("viewBox", "0 0 3000 3000");
+    this.layout.setAttribute("viewBox", "0 0 2250 2250");
     this.menuPanel = new MenuPanel();
     this.modalBox = new ModalBox();
     this.contextMenu = new ContextMenu();
@@ -78,27 +78,27 @@ class Circuit {
         event.target as SVGPathElement
       ).closest("[data-element-id]");
       if (elementTarget) {
-        this.selectedElement = [
+        this.draggableElement = [
           ...this.menuPanel.cirElements,
           ...(this.modalBox.circElements as Element[])
         ].find((elem) => {
           return elem.id === elementTarget.dataset.elementId;
         });
         this.offset = getMousePosition(event);
-        const { x, y } = this.selectedElement;
+        const { x, y } = this.draggableElement;
         this.offset.x -= Number(x);
         this.offset.y -= Number(y);
       }
     };
 
     const drag = (event: MouseEvent) => {
-      if (this.selectedElement) {
+      if (this.draggableElement) {
         const cord = getMousePosition(event);
-        const parent: string = this.selectedElement.parent;
+        const parent: string = this.draggableElement.parent;
         const x = cord.x - this.offset.x;
         const y = cord.y - this.offset.y;
         if (parent === "menu") {
-          this.selectedElement.setPosition(x, y);
+          this.draggableElement.setPosition(x, y);
         } else if (
           parent === "box" &&
           x > this.modalBox.x1 &&
@@ -106,7 +106,8 @@ class Circuit {
           y > this.modalBox.y1 &&
           y < this.modalBox.y2
         ) {
-          this.selectedElement.setPosition(x, y);
+          this.draggableElement.setPosition(x, y);
+          this.modalBox.setWiresPosition(this.draggableElement);
         }
       } else if (this.modalBox.currentWire) {
         const { x, y } = getMousePosition(event);
@@ -114,9 +115,9 @@ class Circuit {
       }
     };
     const endDrag = (event: MouseEvent) => {
-      if (this.selectedElement) {
+      if (this.draggableElement) {
         const cord = getMousePosition(event);
-        if (this.selectedElement.parent === "menu") {
+        if (this.draggableElement.parent === "menu") {
           if (
             cord.x > this.modalBox.x1 &&
             cord.x < this.modalBox.x2 &&
@@ -124,45 +125,46 @@ class Circuit {
             cord.y < this.modalBox.y2
           ) {
             this.menuPanel.cirElements = this.menuPanel.cirElements.filter(
-              (elem) => elem.id !== this.selectedElement.id
+              (elem) => elem.id !== this.draggableElement.id
             );
-            this.modalBox.circElements.push(this.selectedElement);
-            this.selectedElement.setParent("box");
-            this.selectedElement.setPosition(
+            this.modalBox.circElements.push(this.draggableElement);
+            this.draggableElement.setParent("box");
+            this.draggableElement.setPosition(
               roundTo(cord.x - this.offset.x),
               roundTo(cord.y - this.offset.y)
             );
-            console.log(this.selectedElement.type);
+            console.log(this.draggableElement.type);
             const Element = this.modules.find(
-              (Module) => Module.type === this.selectedElement.type
+              (Module) => Module.type === this.draggableElement.type
             );
             console.log(Element.type);
             const newElem = new Element("menu");
             this.menuPanel.cirElements.push(newElem);
             this.layout.append(
               newElem.render(
-                this.selectedElement.xStart,
-                this.selectedElement.yStart
+                this.draggableElement.xStart,
+                this.draggableElement.yStart
               )
             );
             console.log(this.menuPanel.cirElements);
             console.log(this.modalBox.circElements);
           } else {
-            this.selectedElement.setPosition(
-              this.selectedElement.xStart,
-              this.selectedElement.yStart
+            this.draggableElement.setPosition(
+              this.draggableElement.xStart,
+              this.draggableElement.yStart
             );
           }
-        } else if (this.selectedElement.parent === "box") {
-          this.selectedElement.setPosition(
+        } else if (this.draggableElement.parent === "box") {
+          this.draggableElement.setPosition(
             roundTo(cord.x - this.offset.x),
             roundTo(cord.y - this.offset.y)
           );
         }
-        this.selectedElement = null;
+        this.draggableElement = null;
       }
     };
     const onClick = (event: MouseEvent) => {
+      console.log(this.modalBox.circElements);
       const cord = getMousePosition(event);
       if (
         cord.x > this.modalBox.x1 &&
@@ -170,7 +172,7 @@ class Circuit {
         cord.y > this.modalBox.y1 &&
         cord.y < this.modalBox.y2
       ) {
-        this.modalBox.onBoxClick(event);
+        this.modalBox.onBoxClick(event, cord.x, cord.y);
       }
     };
 
