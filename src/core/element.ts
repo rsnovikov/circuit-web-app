@@ -1,9 +1,11 @@
 import { nanoid } from "nanoid";
 
-interface IOutput {
+export interface IOutput {
   x: number;
   y: number;
   id?: string;
+  direction?: "end" | "start";
+  wireId?: string;
 }
 
 interface IHitBox {
@@ -21,7 +23,7 @@ interface IConstructorProps {
   outputs?: IOutput[];
 }
 
-class Element {
+abstract class Element {
   x: number;
   y: number;
   xStart: number;
@@ -42,7 +44,13 @@ class Element {
   elHitBox: SVGRectElement;
   outputs: IOutput[] = [];
 
-  constructor({ d, type, parent, hitBox, outputs }: IConstructorProps) {
+  protected constructor({
+    d,
+    type,
+    parent,
+    hitBox,
+    outputs
+  }: IConstructorProps) {
     this.parent = parent;
     this.layout.dataset.elementId = this.id;
     this.element.setAttribute("d", d);

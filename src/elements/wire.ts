@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+
 class Wire {
   element: SVGLineElement;
   element1: string;
@@ -9,6 +11,7 @@ class Wire {
   id: string;
   type = "wire";
   constructor(xStart: number, yStart: number, elem1: string) {
+    this.id = nanoid(8);
     this.x1 = xStart;
     this.y1 = yStart;
     this.element = document.createElementNS(
@@ -21,17 +24,24 @@ class Wire {
     this.element.setAttribute("y1", String(yStart));
     this.element.setAttribute("y2", String(yStart));
     this.element.setAttribute("stroke", "blue");
+    this.element.dataset.wireId = this.id;
   }
 
   render() {
     return this.element;
   }
 
-  setPosition(x: number, y: number) {
+  setPositionEnd(x: number, y: number) {
     this.x2 = x;
     this.y2 = y;
     this.element.setAttribute("x2", String(x));
     this.element.setAttribute("y2", String(y));
+  }
+  setPositionStart(x: number, y: number) {
+    this.x1 = x;
+    this.y1 = y;
+    this.element.setAttribute("x1", String(x));
+    this.element.setAttribute("y1", String(y));
   }
 }
 
