@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import { types } from "sass";
 
 interface IOutput {
   x: number;

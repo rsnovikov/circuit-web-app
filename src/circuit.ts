@@ -10,6 +10,8 @@ import Key from "./elements/key";
 import Relay from "./elements/relay";
 import Switch from "./elements/switch";
 import Motor from "./elements/motor";
+import ContextMenu from "./components/contextMenu";
+import contextMenu from "./components/contextMenu";
 
 class Circuit {
   id: string;
@@ -22,6 +24,7 @@ class Circuit {
   offset: { x: number; y: number };
   menuPanel: MenuPanel;
   modalBox: ModalBox;
+  contextMenu: ContextMenu;
   modules: any[] = [Power, Lamp, Resistor, Ground, Key, Relay, Switch, Motor];
 
   constructor(id: string) {
@@ -34,10 +37,12 @@ class Circuit {
     this.layout.setAttribute("viewBox", "0 0 2250 2250");
     this.menuPanel = new MenuPanel();
     this.modalBox = new ModalBox();
+    this.contextMenu = new ContextMenu();
   }
 
   start(): void {
     this.layout.append(this.menuPanel.render());
+    this.layout.append(this.contextMenu.render());
     this.layout.append(this.modalBox.render());
     const startX = this.menuPanel.xElement;
     this.modules.forEach((Module) => {
@@ -177,10 +182,16 @@ class Circuit {
         cord.x > this.modalBox.x1 &&
         cord.x < this.modalBox.x2 &&
         cord.y > this.modalBox.y1 &&
-        cord.y < this.modalBox.y2
+        cord.y < this.modalBox.y2 &&
+        !this.contextMenu.flag
       ) {
-        // this.contextMenu.open(event, this.modalBox.elements);
+        this.contextMenu.open(event, this.modalBox.circElements);
+      } else {
+        this.contextMenu.close(event);
       }
+    };
+    const onContextMenuLC = (event: MouseEvent) => {
+      this.contextMenu.close(event);
     };
 
     this.layout.addEventListener("mousedown", startDrag);
@@ -189,6 +200,7 @@ class Circuit {
     this.layout.addEventListener("mouseleave", endDrag);
     this.layout.addEventListener("click", onClick);
     this.layout.addEventListener("contextmenu", onContextMenu);
+    this.contextMenu.layout.addEventListener("contextmenu", onContextMenuLC);
   }
 }
 
