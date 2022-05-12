@@ -49,6 +49,7 @@ class ModalBox {
     }
   }
 
+
   onWirePut(event: MouseEvent, x: number, y: number) {
     x = roundTo(x);
     y = roundTo(y);
