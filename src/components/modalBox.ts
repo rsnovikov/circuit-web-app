@@ -1,4 +1,4 @@
-import Element from "../core/element";
+import Element, { IOutput } from "../core/element";
 import { nanoid } from "nanoid";
 import Wire from "../elements/wire";
 import { roundTo } from "../utils/utils";
@@ -43,7 +43,7 @@ class ModalBox {
         this.onWireStart(target);
       }
     } else if ((event.target as HTMLElement).closest("[data-element-id]")) {
-      console.log(event.target);
+      // console.log(event.target);
     } else {
       this.currentWire && this.onWirePut(event, x, y);
     }
@@ -52,7 +52,7 @@ class ModalBox {
   onWirePut(event: MouseEvent, x: number, y: number) {
     x = roundTo(x);
     y = roundTo(y);
-    this.currentWire.setPosition(x, y);
+    this.currentWire.setPositionEnd(x, y);
     const node = new Node(x, y);
     this.layout.append(node.render());
 
@@ -62,25 +62,39 @@ class ModalBox {
 
     this.currentWire = new Wire(x, y, node.id);
     this.layout.append(this.currentWire.render());
-    console.log(x, y);
   }
 
   onWireJoin(outputElem: SVGRectElement) {
     const { x, y, element } = this.getWirePosition(outputElem);
-    this.currentWire.setPosition(x, y);
+    this.currentWire.setPositionEnd(x, y);
     this.currentWire.element2 = element.id;
     this.circElements.push(this.currentWire);
-    console.log(this.circElements);
+    const newOutputs = element.outputs.map((output) => {
+      if (output.id === outputElem.dataset.outputId) {
+        output.direction = "end";
+        output.wireId = this.currentWire.id;
+      }
+      return output;
+    });
+    element.outputs = [...newOutputs];
     this.currentWire = null;
   }
 
   onWireMove(x: number, y: number) {
-    this.currentWire.setPosition(x, y);
+    this.currentWire.setPositionEnd(x, y);
   }
 
   onWireStart(outputElem: SVGRectElement) {
     const { x, y, element } = this.getWirePosition(outputElem);
     this.currentWire = new Wire(x, y, element.id);
+    const newOutputs = element.outputs.map((output) => {
+      if (output.id === outputElem.dataset.outputId) {
+        output.direction = "start";
+        output.wireId = this.currentWire.id;
+      }
+      return output;
+    });
+    element.outputs = [...newOutputs];
     this.layout.append(this.currentWire.render());
   }
 
@@ -96,14 +110,19 @@ class ModalBox {
   }
 
   setWiresPosition(element: Element) {
-    const wires1 = this.circElements.filter((elem) => {
-      if (elem.type === "wire") {
-        return (elem as Wire).element2 === element.id;
+    element.outputs.forEach((output) => {
+      if (output.wireId) {
+        const wire = this.circElements.find(
+          (el) => el.id === output.wireId
+        ) as Wire;
+        const x = roundTo(element.x) + output.x;
+        const y = roundTo(element.y) + output.y;
+        if (output.direction === "start") {
+          wire.setPositionStart(x, y);
+        } else if (output.direction === "end") {
+          wire.setPositionEnd(x, y);
+        }
       }
-    });
-    console.log(wires1);
-    wires1.forEach((wire1: Wire) => {
-      wire1.setPosition(element.x, element.y);
     });
   }
 }

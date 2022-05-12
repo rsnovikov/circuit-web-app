@@ -23,11 +23,11 @@ class Lamp extends Element {
       parent,
       outputs: [
         {
-          x: 75,
+          x: 80,
           y: 0
         },
         {
-          x: -75,
+          x: -80,
           y: 0
         }
       ]

@@ -128,11 +128,9 @@ class Circuit {
               roundTo(cord.x - this.offset.x),
               roundTo(cord.y - this.offset.y)
             );
-            console.log(this.draggableElement.type);
             const Element = this.modules.find(
               (Module) => Module.type === this.draggableElement.type
             );
-            console.log(Element.type);
             const newElem = new Element("menu");
             this.menuPanel.cirElements.push(newElem);
             this.layout.append(
@@ -141,8 +139,6 @@ class Circuit {
                 this.draggableElement.yStart
               )
             );
-            console.log(this.menuPanel.cirElements);
-            console.log(this.modalBox.circElements);
           } else {
             this.draggableElement.setPosition(
               this.draggableElement.xStart,
@@ -159,7 +155,6 @@ class Circuit {
       }
     };
     const onClick = (event: MouseEvent) => {
-      console.log(this.modalBox.circElements);
       const cord = getMousePosition(event);
       if (
         cord.x > this.modalBox.x1 &&
@@ -182,7 +177,6 @@ class Circuit {
         // this.contextMenu.open(event, this.modalBox.elements);
       }
     };
-
     this.layout.addEventListener("mousedown", startDrag);
     this.layout.addEventListener("mousemove", drag);
     this.layout.addEventListener("mouseup", endDrag);

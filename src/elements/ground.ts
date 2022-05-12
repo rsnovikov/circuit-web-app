@@ -17,7 +17,7 @@ class Ground extends Element {
 			h 10
 		`,
       type: ElementTypes.ground,
-      parent,
+      parent
     });
   }
 }
