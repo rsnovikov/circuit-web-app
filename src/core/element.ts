@@ -43,7 +43,13 @@ abstract class Element {
   elementParent: string;
   elHitBox: SVGRectElement;
   outputs: IOutput[] = [];
-
+  contextMethods: any[] = [
+    {
+      id: nanoid(8),
+      title: "удалить",
+      method: this.remove
+    }
+  ];
   protected constructor({
     d,
     type,
@@ -126,6 +132,10 @@ abstract class Element {
         outputEl.style.display = "block";
       });
     }
+  }
+
+  remove() {
+    this.layout.remove();
   }
 }
 

@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import Wire from "../elements/wire";
 import { roundTo } from "../utils/utils";
 import Node from "../elements/node";
+import { Elements } from "../types";
 
 class ModalBox {
   layout: SVGGElement;
@@ -10,7 +11,7 @@ class ModalBox {
     "http://www.w3.org/2000/svg",
     "rect"
   );
-  circElements: (Element | Wire | Node)[] = [];
+  circElements: Elements = [];
   x1 = 551;
   x2 = 2249;
   y1 = 1;
@@ -48,7 +49,6 @@ class ModalBox {
       this.currentWire && this.onWirePut(event, x, y);
     }
   }
-
 
   onWirePut(event: MouseEvent, x: number, y: number) {
     x = roundTo(x);

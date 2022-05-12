@@ -177,16 +177,12 @@ class Circuit {
         cord.x > this.modalBox.x1 &&
         cord.x < this.modalBox.x2 &&
         cord.y > this.modalBox.y1 &&
-        cord.y < this.modalBox.y2 &&
-        !this.contextMenu.flag
+        cord.y < this.modalBox.y2
       ) {
         this.contextMenu.open(event, this.modalBox.circElements);
       } else {
         this.contextMenu.close(event);
       }
-    };
-    const onContextMenuLC = (event: MouseEvent) => {
-      this.contextMenu.close(event);
     };
     this.layout.addEventListener("mousedown", startDrag);
     this.layout.addEventListener("mousemove", drag);
@@ -194,7 +190,6 @@ class Circuit {
     this.layout.addEventListener("mouseleave", endDrag);
     this.layout.addEventListener("click", onClick);
     this.layout.addEventListener("contextmenu", onContextMenu);
-    this.contextMenu.layout.addEventListener("contextmenu", onContextMenuLC);
   }
 }
 
