@@ -64,5 +64,11 @@
   width: 20px;
   fill: none;
   stroke: black;
-  stroke-width: 3px ;
+  stroke-width: 3px;
+  transition: 0.3s;
+}
+.modalWindowBox__svg:hover{
+  stroke: #f6b50d;
+  stroke-width: 4px;
+  cursor: pointer;
 }
