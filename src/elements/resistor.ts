@@ -8,15 +8,28 @@ class Resistor extends Element {
     super({
       d: `
 			M 0 0 
-			m -75 0 
-			v -25
-			h 150
-			v 50
-			h -150
-			 z
+			m -50 0
+			v -20
+			h 100
+			v 40
+			h -100
+			z
+			l -20 0
+			m 120 0
+			l 20 0
 		`,
       type: ElementTypes.resistor,
-      parent
+      parent,
+      outputs: [
+        {
+          x: 70,
+          y: 0
+        },
+        {
+          x: -70,
+          y: 0
+        }
+      ]
     });
   }
 }
