@@ -1,8 +1,11 @@
 import Element from "../core/element";
 import { ElementTypes } from "../enums";
+import { nanoid } from "nanoid";
+import ModalWindow from "../components/modalWindow";
 
 class Resistor extends Element {
   static type: string = ElementTypes.resistor;
+  resistance: number = 100;
 
   constructor(parent: "menu" | "box" = "menu") {
     super({
@@ -31,6 +34,20 @@ class Resistor extends Element {
         }
       ]
     });
+    this.contextMethods.push({
+      id: nanoid(8),
+      title: "Изменить сопротивление",
+      method: this.resistanceChangeCall
+    });
+  }
+
+  resistanceChangeCall() {
+    ModalWindow.open(this, this.resistanceChange, "Введите сопротивление (Ом)");
+  }
+
+  resistanceChange(res: number) {
+    this.resistance = Number(res);
+    console.log(this);
   }
 }
 

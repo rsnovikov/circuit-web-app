@@ -163,10 +163,13 @@ class Circuit {
       }
     };
     const onClick = (event: MouseEvent) => {
+      console.log(event);
       const cord = getMousePosition(event);
       const target = event.target as HTMLElement;
-      if (target.dataset.modalCloseId) {
-        this.modalWindow.close();
+      if (target.dataset.inputId) {
+        ModalWindow.toggle();
+      } else if (target.dataset.modalCloseId) {
+        ModalWindow.close();
       } else if (target.dataset.contextMenuItemId) {
         this.contextMenu.toggle(event);
       } else if (
@@ -175,6 +178,7 @@ class Circuit {
         cord.y > this.modalBox.y1 &&
         cord.y < this.modalBox.y2
       ) {
+        this.contextMenu.close(event);
         this.modalBox.onBoxClick(event, cord.x, cord.y);
       }
     };

@@ -25,8 +25,8 @@ class ContextMenu {
 
   open(event: MouseEvent, elements: Elements = []) {
     event.preventDefault();
-    this.element.style.top = `${event.clientY}px`;
-    this.element.style.left = `${event.clientX}px`;
+    this.element.style.top = `${event.pageY}px`;
+    this.element.style.left = `${event.pageX}px`;
     this.element.style.display = "inline-flex";
     const target: SVGSVGElement = (event.target as HTMLElement).closest(
       "[data-element-id]"

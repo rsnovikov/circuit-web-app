@@ -26,7 +26,6 @@ interface IConstructorProps {
 }
 
 abstract class Element {
-  modalWindow: ModalWindow;
   x: number;
   y: number;
   deg: number;
