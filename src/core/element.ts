@@ -1,8 +1,10 @@
 import { nanoid } from "nanoid";
+import ModalWindow from "../components/modalWindow";
 
 export interface IOutput {
   x: number;
   y: number;
+  // deg: number;
   id?: string;
   direction?: "end" | "start";
   wireId?: string;
@@ -26,6 +28,7 @@ interface IConstructorProps {
 abstract class Element {
   x: number;
   y: number;
+  deg: number;
   xStart: number;
   yStart: number;
   id: string = nanoid(8);
@@ -48,6 +51,16 @@ abstract class Element {
       id: nanoid(8),
       title: "удалить",
       method: this.remove
+    },
+    {
+      id: nanoid(8),
+      title: "повернуть на 90° ↶",
+      method: this.rotateLeft
+    },
+    {
+      id: nanoid(8),
+      title: "повернуть на 90° ↷",
+      method: this.rotateRight
     }
   ];
   protected constructor({
@@ -112,6 +125,7 @@ abstract class Element {
   render(x = 0, y = 0): SVGGElement {
     this.xStart = x;
     this.yStart = y;
+    this.deg = 0;
     this.setPosition(x, y);
     return this.layout;
   }
@@ -119,7 +133,19 @@ abstract class Element {
   setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;
-    this.layout.setAttribute("transform", `translate(${this.x},${this.y})`);
+    this.setTransform();
+  }
+
+  setRotate(deg: number) {
+    this.deg += deg;
+    this.setTransform();
+  }
+
+  setTransform() {
+    this.layout.setAttribute(
+      "transform",
+      `translate(${this.x},${this.y}) rotate(${this.deg})`
+    );
   }
 
   setParent(parent: "menu" | "box" = "box") {
@@ -136,6 +162,17 @@ abstract class Element {
 
   remove() {
     this.layout.remove();
+  }
+
+  rotate(degrees: number) {
+    this.setRotate(degrees);
+  }
+
+  rotateLeft() {
+    this.rotate(-90);
+  }
+  rotateRight() {
+    this.rotate(90);
   }
 }
 

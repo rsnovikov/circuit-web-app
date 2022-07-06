@@ -11,7 +11,7 @@ import Relay from "./elements/relay";
 import Switch from "./elements/switch";
 import Motor from "./elements/motor";
 import ContextMenu from "./components/contextMenu";
-import contextMenu from "./components/contextMenu";
+import ModalWindow from "./components/modalWindow";
 
 class Circuit {
   id: string;
@@ -25,6 +25,7 @@ class Circuit {
   menuPanel: MenuPanel;
   modalBox: ModalBox;
   contextMenu: ContextMenu;
+  modalWindow: ModalWindow;
   modules: any[] = [Power, Lamp, Resistor, Ground, Key, Relay, Switch, Motor];
 
   constructor(id: string) {
@@ -38,12 +39,14 @@ class Circuit {
     this.menuPanel = new MenuPanel();
     this.modalBox = new ModalBox();
     this.contextMenu = new ContextMenu();
+    this.modalWindow = new ModalWindow();
   }
 
   start(): void {
+    this.appBody.append(this.contextMenu.render());
     this.layout.append(this.menuPanel.render());
-    this.layout.append(this.contextMenu.render());
     this.layout.append(this.modalBox.render());
+    this.appBody.append(this.modalWindow.render());
     const startX = this.menuPanel.xElement;
     this.modules.forEach((Module) => {
       const element = new Module("menu");
@@ -160,36 +163,48 @@ class Circuit {
       }
     };
     const onClick = (event: MouseEvent) => {
+      console.log(event);
       const cord = getMousePosition(event);
-      if (
+      const target = event.target as HTMLElement;
+      if (target.dataset.inputId) {
+        ModalWindow.toggle();
+      } else if (target.dataset.modalCloseId) {
+        ModalWindow.close();
+      } else if (target.dataset.contextMenuItemId) {
+        this.contextMenu.toggle(event);
+      } else if (
         cord.x > this.modalBox.x1 &&
         cord.x < this.modalBox.x2 &&
         cord.y > this.modalBox.y1 &&
         cord.y < this.modalBox.y2
       ) {
+        this.contextMenu.close(event);
         this.modalBox.onBoxClick(event, cord.x, cord.y);
       }
     };
 
     const onContextMenu = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
       const cord = getMousePosition(event);
-      if (
+      if (target.classList.contains("contextMenu__element")) {
+        this.contextMenu.close(event);
+      } else if (
         cord.x > this.modalBox.x1 &&
         cord.x < this.modalBox.x2 &&
         cord.y > this.modalBox.y1 &&
         cord.y < this.modalBox.y2
       ) {
-        this.contextMenu.open(event, this.modalBox.circElements);
-      } else {
         this.contextMenu.close(event);
+        this.contextMenu.open(event, this.modalBox.circElements);
       }
     };
+
     this.layout.addEventListener("mousedown", startDrag);
     this.layout.addEventListener("mousemove", drag);
     this.layout.addEventListener("mouseup", endDrag);
     this.layout.addEventListener("mouseleave", endDrag);
-    this.layout.addEventListener("click", onClick);
-    this.layout.addEventListener("contextmenu", onContextMenu);
+    this.appBody.addEventListener("click", onClick);
+    this.appBody.addEventListener("contextmenu", onContextMenu);
   }
 }
 

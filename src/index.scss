@@ -6,6 +6,8 @@
   stroke: black;
 }
 
+
+
 .contextMenu{
   font-size: 14px;
   display: none;
@@ -14,14 +16,12 @@
   align-items: center;
   position: absolute;
   width: auto;
-  transition: 0.2s;
   z-index: 1000;
   background: #1b1a1a;
   border-radius: 5px;
 }
 
 .contextMenu__element{
-  //text-align: center;
   font-family: "Roboto";
   padding: 5px 10px;
   font-size: 0.75rem;
@@ -34,4 +34,61 @@
 
 .contextMenu__element:hover{
   background-color: #343434;
+}
+
+.modalWindowBackground{
+  font-family: "Roboto";
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.7);
+  justify-content: center;
+}
+
+.modalWindowBox{
+  position: fixed;
+  margin: 0 auto;
+  top: 50px;
+  background-color: #fff;
+  border-radius: 10px;
+  height: 200px;
+  width: 350px;
+}
+
+.modalWindowBox__svg{
+  position: relative;
+  top: 5px;
+  height: 20px;
+  width: 100%;
+  fill: none;
+  stroke: black;
+  stroke-width: 3px;
+  transition: 0.3s;
+}
+.modalWindowBox__svg:hover{
+  stroke: #f6b50d;
+  stroke-width: 4px;
+  cursor: pointer;
+}
+
+.modalWindowBox__inputsContainer{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+}
+
+.modalWindowBox__inputsContainer__item{
+  margin: 15px 0;
+}
+.modalWindowBox__inputsContainer__item-button{
+  background-color: #0e67d3;
+  color: #eeeeee;
+  border-radius: 5px;
+  border: 1px solid black;
+  padding: 5px 10px;
 }

@@ -17,7 +17,19 @@ class Ground extends Element {
 			h 10
 		`,
       type: ElementTypes.ground,
-      parent
+      parent,
+      hitBox: {
+        x1: -20,
+        x2: 20,
+        y1: -40,
+        y2: 25
+      },
+      outputs: [
+        {
+          x: 0,
+          y: -40
+        }
+      ]
     });
   }
 }
