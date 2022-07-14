@@ -35,35 +35,36 @@ class ModalWindow {
     layout.append(line);
     this.win.classList.add("modalWindowBox");
 
-    const inputsContainer: HTMLElement = document.createElement("div");
-    const button: HTMLButtonElement = document.createElement("button");
+    const modalWindowForm: HTMLElement = document.createElement("form");
+    const button: HTMLButtonElement = document.createElement("input");
 
-    inputsContainer.classList.add("modalWindowBox__inputsContainer");
+    modalWindowForm.classList.add("modalWindowBox__inputsContainer");
     ModalWindow.label.classList.add("modalWindowBox__inputsContainer__item");
     ModalWindow.input.classList.add("modalWindowBox__inputsContainer__item");
     button.classList.add("modalWindowBox__inputsContainer__item");
     button.classList.add("modalWindowBox__inputsContainer__item-button");
 
-    ModalWindow.label.setAttribute("for", "modalWindow");
+    modalWindowForm.setAttribute("name", "modalWindow-form");
+    ModalWindow.label.setAttribute("for", "modalWindow-input1");
+    ModalWindow.input.setAttribute("pattern", "\\d+");
     ModalWindow.input.setAttribute("autocomplete", "off");
-    ModalWindow.input.setAttribute("name", "modalWindow");
-    button.setAttribute("type", "button");
-    button.setAttribute("name", "modalWindow");
-    button.dataset.inputId = nanoid(8);
+    ModalWindow.input.name = "modalWindow-input1";
+    ModalWindow.input.value = "test";
 
+    button.type = "submit";
+    button.name = "modalWindow-submit";
+    button.value = "Enter";
+    ModalWindow.input.setAttribute("required", "true");
+
+    modalWindowForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      ModalWindow.toggle();
+    });
+    button.dataset.inputId = nanoid(8);
     button.innerText = "Enter";
 
-    inputsContainer.append(ModalWindow.label, ModalWindow.input, button);
-    this.win.append(layout, inputsContainer);
-    // this.win.innerHTML += `
-    // <div class="modalWindowBox__inputsContainer">
-    // <label for="name" class="modalWindowBox__inputsContainer__item">Введите значение</label>
-    // <input type="text" autocomplete="off" id="name" name="name" class="modalWindowBox__inputsContainer__item">
-    // <button type="button" name="name" data-input-id="${nanoid(
-    //   8
-    // )}" class="modalWindowBox__inputsContainer__item modalWindowBox__inputsContainer__item-button">Enter</button>
-    // </div>`;
-
+    modalWindowForm.append(ModalWindow.label, ModalWindow.input, button);
+    this.win.append(layout, modalWindowForm);
     ModalWindow.background.append(this.win);
   }
 
@@ -72,6 +73,8 @@ class ModalWindow {
     func: any,
     labelName: string = "Введите значение"
   ) {
+    ModalWindow.input.setAttribute("autofocus", "true");
+    ModalWindow.input.value = "";
     ModalWindow.elementTriggerer = elem;
     ModalWindow.tirggererFunction = func;
     ModalWindow.label.innerText = labelName;

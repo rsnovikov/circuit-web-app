@@ -166,7 +166,7 @@ class Circuit {
       console.log(event);
       const cord = getMousePosition(event);
       const target = event.target as HTMLElement;
-      if (target.dataset.inputId) {
+      if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
         ModalWindow.toggle();
       } else if (target.dataset.modalCloseId) {
         ModalWindow.close();
@@ -195,7 +195,8 @@ class Circuit {
         cord.y < this.modalBox.y2
       ) {
         this.contextMenu.close(event);
-        this.contextMenu.open(event, this.modalBox.circElements);
+        if (target.closest("[data-element-id]"))
+          this.contextMenu.open(event, this.modalBox.circElements);
       }
     };
 

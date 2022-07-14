@@ -85,10 +85,15 @@
 .modalWindowBox__inputsContainer__item{
   margin: 15px 0;
 }
-.modalWindowBox__inputsContainer__item-button{
+input.modalWindowBox__inputsContainer__item-button{
   background-color: #0e67d3;
   color: #eeeeee;
   border-radius: 5px;
   border: 1px solid black;
   padding: 5px 10px;
 }
+input._active:invalid{
+  border: 2px solid red;
+  border-radius: 5px;
+}
+
