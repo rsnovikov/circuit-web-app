@@ -7,8 +7,7 @@
 }
 
 
-
-.contextMenu{
+.contextMenu {
   font-size: 14px;
   display: none;
   flex-direction: column;
@@ -19,24 +18,25 @@
   z-index: 1000;
   background: #1b1a1a;
   border-radius: 5px;
+
+  &__element {
+    font-family: "Roboto";
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    color: #eee;
+    cursor: pointer;
+    transition: background-color .2s ease-in;
+    border-radius: inherit;
+    width: 100%;
+
+    &:hover{
+      background-color: #343434;
+    }
+  }
 }
 
-.contextMenu__element{
-  font-family: "Roboto";
-  padding: 5px 10px;
-  font-size: 0.75rem;
-  color: #eee;
-  cursor: pointer;
-  transition: background-color .2s ease-in;
-  border-radius: inherit;
-  width: 100%;
-}
 
-.contextMenu__element:hover{
-  background-color: #343434;
-}
-
-.modalWindowBackground{
+.modalWindowBackground {
   font-family: "Roboto";
   display: none;
   position: fixed;
@@ -44,11 +44,11 @@
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   justify-content: center;
 }
 
-.modalWindowBox{
+.modalWindowBox {
   position: fixed;
   margin: 0 auto;
   top: 50px;
@@ -56,44 +56,56 @@
   border-radius: 10px;
   height: 200px;
   width: 350px;
+
+  &__svg {
+    position: relative;
+    top: 5px;
+    height: 20px;
+    width: 100%;
+    fill: none;
+    stroke: black;
+    stroke-width: 3px;
+    transition: 0.3s;
+    &:hover{
+      stroke: #f6b50d;
+      stroke-width: 4px;
+      cursor: pointer;
+    }
+  }
+
+  &__inputsContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+
+    &__item{
+      margin: 15px 0;
+      &.submitButton{
+          background-color: #0e67d3 ;
+          color: #eeeeee ;
+          border-radius: 5px ;
+          border: 1px solid black ;
+          padding: 5px 10px ;
+      }
+    }
+
+    input {
+      border: 1px solid black;
+      border-radius: 4px;
+    }
+
+    ._active:invalid {
+      border: 1px solid red;
+      border-radius: 4px;
+    }
+
+    ._active:valid {
+      border: 1px solid #01d301;
+      border-radius: 4px;
+    }
+  }
 }
 
-.modalWindowBox__svg{
-  position: relative;
-  top: 5px;
-  height: 20px;
-  width: 100%;
-  fill: none;
-  stroke: black;
-  stroke-width: 3px;
-  transition: 0.3s;
-}
-.modalWindowBox__svg:hover{
-  stroke: #f6b50d;
-  stroke-width: 4px;
-  cursor: pointer;
-}
-
-.modalWindowBox__inputsContainer{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 150px;
-}
-
-.modalWindowBox__inputsContainer__item{
-  margin: 15px 0;
-}
-input.modalWindowBox__inputsContainer__item-button{
-  background-color: #0e67d3;
-  color: #eeeeee;
-  border-radius: 5px;
-  border: 1px solid black;
-  padding: 5px 10px;
-}
-input._active:invalid{
-  border: 2px solid red;
-  border-radius: 5px;
-}
 

@@ -42,7 +42,7 @@ class ModalWindow {
     ModalWindow.label.classList.add("modalWindowBox__inputsContainer__item");
     ModalWindow.input.classList.add("modalWindowBox__inputsContainer__item");
     button.classList.add("modalWindowBox__inputsContainer__item");
-    button.classList.add("modalWindowBox__inputsContainer__item-button");
+    button.classList.add("submitButton");
 
     modalWindowForm.setAttribute("name", "modalWindow-form");
     ModalWindow.label.setAttribute("for", "modalWindow-input1");
@@ -60,6 +60,16 @@ class ModalWindow {
       event.preventDefault();
       ModalWindow.toggle();
     });
+
+    ModalWindow.input.addEventListener("focusout", (event) => {
+      const target = event.target as HTMLElement;
+      target.classList.add("_active");
+    });
+    ModalWindow.input.addEventListener("focusin", (event) => {
+      const target = event.target as HTMLElement;
+      target.classList.remove("_active");
+    });
+
     button.dataset.inputId = nanoid(8);
     button.innerText = "Enter";
 

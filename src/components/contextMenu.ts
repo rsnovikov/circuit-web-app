@@ -19,7 +19,8 @@ class ContextMenu {
     el.id = id;
     el.classList.add("contextMenu__element");
     el.dataset.contextMenuItemId = nanoid(8);
-    el.textContent = toolName;
+    el.textContent =
+      toolName.slice(0, 1).toUpperCase() + toolName.slice(1).toLowerCase();
     this.element.append(el);
   }
 
