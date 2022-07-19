@@ -110,7 +110,7 @@ class Circuit {
           y < this.modalBox.y2
         ) {
           this.draggableElement.setPosition(x, y);
-          this.modalBox.setWiresPosition(this.draggableElement);
+          this.modalBox.setWiresPosition(this.draggableElement, { put: false });
         }
       } else if (this.modalBox.currentWire) {
         const { x, y } = getMousePosition(event);
@@ -158,12 +158,14 @@ class Circuit {
             roundTo(cord.x - this.offset.x),
             roundTo(cord.y - this.offset.y)
           );
+          this.modalBox.setWiresPosition(this.draggableElement, {
+            put: true
+          });
         }
         this.draggableElement = null;
       }
     };
     const onClick = (event: MouseEvent) => {
-      console.log(event);
       const cord = getMousePosition(event);
       const target = event.target as HTMLElement;
       if (target.dataset.inputId) {

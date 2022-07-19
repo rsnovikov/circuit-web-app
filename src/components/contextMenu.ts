@@ -34,7 +34,6 @@ class ContextMenu {
     this.activeElement = elements.find(
       (elem) => elem.id === target.dataset.elementId
     ) as Element;
-    console.log(this.activeElement);
     this.activeElement.contextMethods.forEach((item) => {
       this.add(item.title, item.id);
     });
