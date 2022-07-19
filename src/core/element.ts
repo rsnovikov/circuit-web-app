@@ -1,10 +1,13 @@
 import { nanoid } from "nanoid";
-import { types } from "sass";
+import ModalWindow from "../components/modalWindow";
 
-interface IOutput {
+export interface IOutput {
   x: number;
   y: number;
+  // deg: number;
   id?: string;
+  direction?: "end" | "start";
+  wireId?: string;
 }
 
 interface IHitBox {
@@ -22,9 +25,10 @@ interface IConstructorProps {
   outputs?: IOutput[];
 }
 
-class Element {
+abstract class Element {
   x: number;
   y: number;
+  deg: number;
   xStart: number;
   yStart: number;
   id: string = nanoid(8);
@@ -42,8 +46,30 @@ class Element {
   elementParent: string;
   elHitBox: SVGRectElement;
   outputs: IOutput[] = [];
-
-  constructor({ d, type, parent, hitBox, outputs }: IConstructorProps) {
+  contextMethods: any[] = [
+    {
+      id: nanoid(8),
+      title: "удалить",
+      method: this.remove
+    },
+    {
+      id: nanoid(8),
+      title: "повернуть на 90° ↶",
+      method: this.rotateLeft
+    },
+    {
+      id: nanoid(8),
+      title: "повернуть на 90° ↷",
+      method: this.rotateRight
+    }
+  ];
+  protected constructor({
+    d,
+    type,
+    parent,
+    hitBox,
+    outputs
+  }: IConstructorProps) {
     this.parent = parent;
     this.layout.dataset.elementId = this.id;
     this.element.setAttribute("d", d);
@@ -90,6 +116,7 @@ class Element {
         elOutput.setAttribute("stroke", "none");
         elOutput.setAttribute("stroke-width", "3");
         elOutput.dataset.outputId = output.id;
+        elOutput.style.display = parent === "menu" ? "none" : "block";
         this.layout.append(elOutput);
       });
     }
@@ -98,6 +125,7 @@ class Element {
   render(x = 0, y = 0): SVGGElement {
     this.xStart = x;
     this.yStart = y;
+    this.deg = 0;
     this.setPosition(x, y);
     return this.layout;
   }
@@ -105,12 +133,46 @@ class Element {
   setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;
-    this.layout.setAttribute("transform", `translate(${this.x},${this.y})`);
+    this.setTransform();
+  }
+
+  setRotate(deg: number) {
+    this.deg += deg;
+    this.setTransform();
+  }
+
+  setTransform() {
+    this.layout.setAttribute(
+      "transform",
+      `translate(${this.x},${this.y}) rotate(${this.deg})`
+    );
   }
 
   setParent(parent: "menu" | "box" = "box") {
     this.parent = parent;
     this.element.dataset.elementParent = parent;
+    if (parent === "box") {
+      const outputElems: NodeListOf<SVGElement> =
+        this.layout.querySelectorAll("[data-output-id]");
+      outputElems.forEach((outputEl) => {
+        outputEl.style.display = "block";
+      });
+    }
+  }
+
+  remove() {
+    this.layout.remove();
+  }
+
+  rotate(degrees: number) {
+    this.setRotate(degrees);
+  }
+
+  rotateLeft() {
+    this.rotate(-90);
+  }
+  rotateRight() {
+    this.rotate(90);
   }
 }
 

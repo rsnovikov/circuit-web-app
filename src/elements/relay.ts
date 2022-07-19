@@ -37,10 +37,38 @@ class Relay extends Element {
 			l 73 -35,
 			m 7 35,
 			a 5 5 1 0 1 10 0,
-			a 5 5 1 0 1 -10 0
+			a 5 5 1 0 1 -10 0,
+			m 10 0,
+			l 20 0,
+			m -120 0,
+			l -20 0
 		`,
       type: ElementTypes.relay,
-      parent
+      parent,
+      hitBox: {
+        x1: -60,
+        x2: 60,
+        y1: -80,
+        y2: 80
+      },
+      outputs: [
+        {
+          x: 60,
+          y: -50
+        },
+        {
+          x: -60,
+          y: -50
+        },
+        {
+          x: -70,
+          y: 55
+        },
+        {
+          x: 70,
+          y: 55
+        }
+      ]
     });
   }
 }

@@ -47,7 +47,35 @@ class Switch extends Element {
 			l 110 32
 		`,
       type: ElementTypes.switch,
-      parent
+      parent,
+      hitBox: {
+        x1: -65,
+        x2: 65,
+        y1: -100,
+        y2: 90
+      },
+      outputs: [
+        {
+          x: -60,
+          y: -95
+        },
+        {
+          x: -60,
+          y: -55
+        },
+        {
+          x: -60,
+          y: -15
+        },
+        {
+          x: -60,
+          y: 50
+        },
+        {
+          x: 60,
+          y: 50
+        }
+      ]
     });
   }
 }
