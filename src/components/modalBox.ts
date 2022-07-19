@@ -110,14 +110,14 @@ class ModalBox {
     return { x, y, element };
   }
 
-  setWiresPosition(element: Element) {
+  setWiresPosition(element: Element, options: { put: boolean }) {
     element.outputs.forEach((output) => {
       if (output.wireId) {
         const wire = this.circElements.find(
           (el) => el.id === output.wireId
         ) as Wire;
-        const x = roundTo(element.x) + output.x;
-        const y = roundTo(element.y) + output.y;
+        const x = (options.put ? roundTo(element.x) : element.x) + output.x;
+        const y = (options.put ? roundTo(element.y) : element.y) + output.y;
         if (output.direction === "start") {
           wire.setPositionStart(x, y);
         } else if (output.direction === "end") {

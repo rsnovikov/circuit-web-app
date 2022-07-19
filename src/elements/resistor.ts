@@ -47,7 +47,6 @@ class Resistor extends Element {
 
   resistanceChange(res: number) {
     this.resistance = Number(res);
-    console.log(this);
   }
 }
 
