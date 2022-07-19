@@ -2,15 +2,27 @@ import Element from "../core/element";
 import Wire from "../elements/wire";
 import { Elements } from "../types";
 import { nanoid } from "nanoid";
+import store from "../redux/reducer";
+import {
+  contextMenuAddElement,
+  contextMenuClearElements
+} from "../redux/state";
 
 class ContextMenu {
   element: HTMLElement = document.createElement("ul");
-  modules: string[] = [];
   activeElement: Element;
 
   constructor() {
     this.element.dataset.contextMenuId = nanoid(8);
     this.element.classList.add("contextMenu");
+    store.subscribe(() => {
+      let { state } = store.getState();
+      // if (state.contextMenu.status) {
+      //   state.
+      //   this.open(state.event,state.elements);
+      // }
+    });
+    store.subscribe(() => {});
   }
 
   add(toolName: string, id: string) {
@@ -19,7 +31,8 @@ class ContextMenu {
     el.id = id;
     el.classList.add("contextMenu__element");
     el.dataset.contextMenuItemId = nanoid(8);
-    el.textContent = toolName;
+    el.textContent =
+      toolName.slice(0, 1).toUpperCase() + toolName.slice(1).toLowerCase();
     this.element.append(el);
   }
 
@@ -37,6 +50,7 @@ class ContextMenu {
     console.log(this.activeElement);
     this.activeElement.contextMethods.forEach((item) => {
       this.add(item.title, item.id);
+      store.dispatch(contextMenuAddElement({ title: item.title, id: item.id }));
     });
   }
 
@@ -44,6 +58,7 @@ class ContextMenu {
     event.preventDefault();
     this.element.innerHTML = "";
     this.element.style.display = "none";
+    store.dispatch(contextMenuClearElements());
   }
 
   toggle(event: MouseEvent) {
