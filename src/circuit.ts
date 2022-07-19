@@ -12,12 +12,7 @@ import Switch from "./elements/switch";
 import Motor from "./elements/motor";
 import ContextMenu from "./components/contextMenu";
 import ModalWindow from "./components/modalWindow";
-import store from "./redux/reducer";
-import {
-  contextMenuClose,
-  contextMenuOpen,
-  elementsArray
-} from "./redux/state";
+
 class Circuit {
   id: string;
   appBody: HTMLElement;
@@ -171,7 +166,7 @@ class Circuit {
       console.log(event);
       const cord = getMousePosition(event);
       const target = event.target as HTMLElement;
-      if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
+      if (target.dataset.inputId) {
         ModalWindow.toggle();
       } else if (target.dataset.modalCloseId) {
         ModalWindow.close();
@@ -200,10 +195,7 @@ class Circuit {
         cord.y < this.modalBox.y2
       ) {
         this.contextMenu.close(event);
-        if (target.closest("[data-element-id]")) {
-          store.dispatch(elementsArray(this.modalBox.circElements));
-          this.contextMenu.open(event, this.modalBox.circElements);
-        }
+        this.contextMenu.open(event, this.modalBox.circElements);
       }
     };
 
