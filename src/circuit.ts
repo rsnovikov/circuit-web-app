@@ -165,6 +165,7 @@ class Circuit {
         this.modalBox.setWiresPosition(this.draggableElement, {
           put: true
         });
+
       }
       this.draggableElement = null;
     }
