@@ -1,4 +1,6 @@
 import { nanoid } from "nanoid";
+import store from "../store/reducer";
+import { removeElement } from "../store/circuit";
 
 class Wire {
   element: SVGLineElement;
@@ -42,6 +44,11 @@ class Wire {
     this.y1 = y;
     this.element.setAttribute("x1", String(x));
     this.element.setAttribute("y1", String(y));
+  }
+
+  remove() {
+    this.element.remove();
+    store.dispatch(removeElement({ id: this.id }));
   }
 }
 

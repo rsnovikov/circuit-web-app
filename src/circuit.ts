@@ -12,6 +12,8 @@ import Switch from "./elements/switch";
 import Motor from "./elements/motor";
 import ContextMenu from "./components/contextMenu";
 import ModalWindow from "./components/modalWindow";
+import store from "./store/reducer";
+import { addElement } from "./store/circuit";
 
 class Circuit {
   id: string;
@@ -79,17 +81,19 @@ class Circuit {
   }
 
   protected startDrag(event: MouseEvent) {
-    const elementTarget: SVGGElement =
-      (event.target as SVGPathElement).closest("[data-element-id]") ||
-      (event.target as SVGPathElement).closest("[data-node-id]");
+    const elementTarget: SVGGElement = (event.target as SVGPathElement).closest(
+      "[data-draggable]"
+    );
     if (elementTarget) {
       this.draggableElement = [
         ...this.menuPanel.cirElements,
-        ...(this.modalBox.circElements as Element[])
+        ...(store.getState().circuit.circElements as Element[])
       ].find((elem) => {
-        return elem.id === elementTarget.dataset.elementId;
+        return (
+          elem.id === elementTarget.dataset.elementId ||
+          elem.id === elementTarget.dataset.nodeId
+        );
       });
-      console.log(this.draggableElement);
       this.offset = this.getMousePosition(event);
       const { x, y } = this.draggableElement;
       this.offset.x -= Number(x);
@@ -113,7 +117,7 @@ class Circuit {
         y < this.modalBox.y2
       ) {
         this.draggableElement.setPosition(x, y);
-        this.modalBox.setWiresPosition(this.draggableElement, { put: false });
+        this.modalBox.setWirePosition(this.draggableElement, { put: false });
       }
     } else if (this.modalBox.currentWire) {
       const { x, y } = this.getMousePosition(event);
@@ -134,7 +138,7 @@ class Circuit {
           this.menuPanel.cirElements = this.menuPanel.cirElements.filter(
             (elem) => elem.id !== this.draggableElement.id
           );
-          this.modalBox.circElements.push(this.draggableElement);
+          store.dispatch(addElement(this.draggableElement));
           this.draggableElement.setParent("box");
           this.draggableElement.setPosition(
             roundTo(cord.x - this.offset.x),
@@ -162,7 +166,7 @@ class Circuit {
           roundTo(cord.x - this.offset.x),
           roundTo(cord.y - this.offset.y)
         );
-        this.modalBox.setWiresPosition(this.draggableElement, {
+        this.modalBox.setWirePosition(this.draggableElement, {
           put: true
         });
 
@@ -204,7 +208,7 @@ class Circuit {
     ) {
       this.contextMenu.close(event);
       if (target.closest("[data-element-id]")) {
-        this.contextMenu.open(event, this.modalBox.circElements);
+        this.contextMenu.open(event);
       }
     }
   }
