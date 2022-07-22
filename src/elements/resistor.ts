@@ -5,7 +5,11 @@ import ModalWindow from "../components/modalWindow";
 
 class Resistor extends Element {
   static type: string = ElementTypes.resistor;
-  resistance: number = 100;
+  physisData = {
+    resistance: 100,
+    voltage: 5,
+    maxVoltage: 20
+  };
 
   constructor(parent: "menu" | "box" = "menu") {
     super({
@@ -39,6 +43,11 @@ class Resistor extends Element {
       title: "Изменить сопротивление",
       method: this.resistanceChangeCall
     });
+    this.contextMethods.push({
+      id: nanoid(8),
+      title: "Изменить напряжение",
+      method: this.voltageChangeCall
+    });
   }
 
   resistanceChangeCall() {
@@ -46,7 +55,22 @@ class Resistor extends Element {
   }
 
   resistanceChange(res: number) {
-    this.resistance = Number(res);
+    this.physisData.resistance = Number(res);
+    this.update();
+  }
+  voltageChangeCall() {
+    ModalWindow.open(this, this.voltageChange, "Введите напряжение (В)");
+  }
+
+  voltageChange(res: number) {
+    this.physisData.voltage = Number(res);
+    this.update();
+  }
+
+  update() {
+    if (this.physisData.voltage > this.physisData.maxVoltage)
+      this.element.style.fill = "red";
+    else this.element.style.fill = "transparent";
   }
 }
 

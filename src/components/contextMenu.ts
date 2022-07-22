@@ -1,5 +1,4 @@
 import Element from "../core/element";
-import Wire from "../elements/wire";
 import { Elements } from "../types";
 import { nanoid } from "nanoid";
 
