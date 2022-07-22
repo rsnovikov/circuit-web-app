@@ -1,5 +1,8 @@
 import { nanoid } from "nanoid";
 import ModalWindow from "../components/modalWindow";
+import store from "../store/reducer";
+import { removeElement } from "../store/circuit";
+import Wire from "../elements/wire";
 
 export interface IOutput {
   x: number;
@@ -43,7 +46,6 @@ abstract class Element {
   );
   parent: string;
   type: string;
-  elementParent: string;
   elHitBox: SVGRectElement;
   outputs: IOutput[] = [];
   contextMethods: any[] = [
@@ -72,9 +74,9 @@ abstract class Element {
   }: IConstructorProps) {
     this.parent = parent;
     this.layout.dataset.elementId = this.id;
+    this.layout.dataset.draggable = "true";
     this.element.setAttribute("d", d);
     this.type = type;
-    this.elementParent = parent;
     this.element.setAttribute("stroke", "black");
     this.element.setAttribute("fill", "transparent");
     this.layout.append(this.element);
@@ -150,7 +152,6 @@ abstract class Element {
 
   setParent(parent: "menu" | "box" = "box") {
     this.parent = parent;
-    this.element.dataset.elementParent = parent;
     if (parent === "box") {
       const outputElems: NodeListOf<SVGElement> =
         this.layout.querySelectorAll("[data-output-id]");
@@ -161,6 +162,14 @@ abstract class Element {
   }
 
   remove() {
+    const circElements = store.getState().circuit.circElements;
+    this.outputs.forEach((output) => {
+      const wire: Wire = circElements.find(
+        (elem) => elem.id === output.wireId
+      ) as Wire;
+      wire?.remove();
+    });
+    store.dispatch(removeElement({ id: this.id }));
     this.layout.remove();
   }
 

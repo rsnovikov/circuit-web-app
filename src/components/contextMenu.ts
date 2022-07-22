@@ -1,6 +1,7 @@
 import Element from "../core/element";
 import { Elements } from "../types";
 import { nanoid } from "nanoid";
+import store from "../store/reducer";
 
 class ContextMenu {
   element: HTMLElement = document.createElement("ul");
@@ -22,7 +23,7 @@ class ContextMenu {
     this.element.append(el);
   }
 
-  open(event: MouseEvent, elements: Elements = []) {
+  open(event: MouseEvent) {
     event.preventDefault();
     this.element.style.top = `${event.pageY}px`;
     this.element.style.left = `${event.pageX}px`;
@@ -30,9 +31,11 @@ class ContextMenu {
     const target: SVGSVGElement = (event.target as HTMLElement).closest(
       "[data-element-id]"
     );
-    this.activeElement = elements.find(
-      (elem) => elem.id === target.dataset.elementId
-    ) as Element;
+    this.activeElement = store
+      .getState()
+      .circuit.circElements.find(
+        (elem) => elem.id === target.dataset.elementId
+      ) as Element;
     this.activeElement.contextMethods.forEach((item) => {
       this.add(item.title, item.id);
     });

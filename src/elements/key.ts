@@ -2,7 +2,7 @@ import Element from "../core/element";
 import { ElementTypes } from "../enums";
 
 class Key extends Element {
-  static type: string = typeof ElementTypes.key;
+  static type: string = ElementTypes.key;
 
   constructor(parent: "menu" | "box" = "menu") {
     super({

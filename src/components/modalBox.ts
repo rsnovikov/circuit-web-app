@@ -3,7 +3,8 @@ import { nanoid } from "nanoid";
 import Wire from "../elements/wire";
 import { roundTo } from "../utils/utils";
 import Node from "../elements/node";
-import { Elements } from "../types";
+import store from "../store/reducer";
+import { addElement } from "../store/circuit";
 
 class ModalBox {
   layout: SVGGElement;
@@ -11,12 +12,12 @@ class ModalBox {
     "http://www.w3.org/2000/svg",
     "rect"
   );
-  circElements: Elements = [];
   x1 = 551;
   x2 = 2249;
   y1 = 1;
   y2 = 2249;
   currentWire: Wire;
+
   render(): SVGGElement {
     this.init();
     return this.layout;
@@ -43,7 +44,6 @@ class ModalBox {
         this.onWireStart(target);
       }
     } else if ((event.target as HTMLElement).closest("[data-element-id]")) {
-      // console.log(event.target);
     } else {
       this.currentWire && this.onWirePut(event, x, y);
     }
@@ -52,78 +52,79 @@ class ModalBox {
   onWirePut(event: MouseEvent, x: number, y: number) {
     x = roundTo(x);
     y = roundTo(y);
-    this.currentWire.setPositionEnd(x, y);
-    const node = new Node({ x, y });
+    this.currentWire?.setPositionEnd(x, y);
+    const node = new Node({ x, y, endWireId: this.currentWire.id });
     this.layout.append(node.render());
 
     this.currentWire.element2 = node.id;
-    this.circElements.push(this.currentWire);
-    this.circElements.push(node);
-
+    store.dispatch(addElement(this.currentWire));
+    store.dispatch(addElement(node));
     this.currentWire = new Wire(x, y, node.id);
+    node.addWire(this.currentWire.id, "start");
     this.layout.append(this.currentWire.render());
   }
 
   onWireJoin(outputElem: SVGRectElement) {
-    console.log(outputElem);
     const { x, y, element } = this.getWirePosition(outputElem);
-    console.log(element);
-    this.currentWire.setPositionEnd(x, y);
-    this.currentWire.element2 = element.id;
-    this.circElements.push(this.currentWire);
+
+    this.currentWire?.setPositionEnd(x, y);
     const newOutputs = element.outputs.map((output) => {
-      if (output.id === outputElem.dataset.outputId) {
+      if (output.id === outputElem.dataset.outputId && !output.wireId) {
+        this.currentWire.element2 = element.id;
+        store.dispatch(addElement(this.currentWire));
         output.direction = "end";
         output.wireId = this.currentWire.id;
+        this.currentWire = null;
       }
       return output;
     });
     element.outputs = [...newOutputs];
-    this.currentWire = null;
   }
 
   onWireMove(x: number, y: number) {
-    this.currentWire.setPositionEnd(x, y);
+    this.currentWire?.setPositionEnd(x, y);
   }
 
   onWireStart(outputElem: SVGRectElement) {
     const { x, y, element } = this.getWirePosition(outputElem);
-    console.log(element);
+
     const newOutputs = element.outputs.map((output) => {
-      if (output.id === outputElem.dataset.outputId) {
+      if (output.id === outputElem.dataset.outputId && !output.wireId) {
+        this.currentWire = new Wire(x, y, element.id);
         output.direction = "start";
-        output.wireId = element.id;
+        output.wireId = this.currentWire.id;
+        this.layout.append(this.currentWire.render());
       }
       return output;
     });
-    this.currentWire = new Wire(x, y, element.id);
     element.outputs = [...newOutputs];
-    this.layout.append(this.currentWire.render());
   }
 
   getWirePosition(outputElem: SVGRectElement) {
     const outputId = outputElem.dataset.outputId;
-    const element = this.circElements.find((circElem) =>
-      (circElem as Element).outputs?.find((output) => output.id === outputId)
-    ) as Element;
+    const element = store
+      .getState()
+      .circuit.circElements.find((circElem) =>
+        (circElem as Element).outputs?.find((output) => output.id === outputId)
+      ) as Element;
     const output = element.outputs.find((output) => output.id === outputId);
     const x = element.x + output.x;
     const y = element.y + output.y;
     return { x, y, element };
   }
 
-  setWiresPosition(element: Element, options: { put: boolean }) {
+  setWirePosition(element: Element, options: { put: boolean }) {
     element.outputs.forEach((output) => {
       if (output.wireId) {
-        const wire = this.circElements.find(
-          (el) => el.id === output.wireId
-        ) as Wire;
+        const wire = store
+          .getState()
+          .circuit.circElements.find((el) => el.id === output.wireId) as Wire;
         const x = (options.put ? roundTo(element.x) : element.x) + output.x;
         const y = (options.put ? roundTo(element.y) : element.y) + output.y;
         if (output.direction === "start") {
-          wire.setPositionStart(x, y);
+          wire?.setPositionStart(x, y);
         } else if (output.direction === "end") {
-          wire.setPositionEnd(x, y);
+          wire?.setPositionEnd(x, y);
         }
       }
     });
