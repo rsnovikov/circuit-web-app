@@ -74,9 +74,10 @@ abstract class Element {
     this.layout.dataset.elementId = this.id;
     this.element.setAttribute("d", d);
     this.type = type;
-    this.elementParent = parent;
+    // this.elementParent = parent;
     this.element.setAttribute("stroke", "black");
     this.element.setAttribute("fill", "transparent");
+    this.element.setAttribute("stroke-width", "2");
     this.layout.append(this.element);
     if (hitBox) {
       this.hitBox = hitBox;
