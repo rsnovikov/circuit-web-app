@@ -12,12 +12,7 @@ import Switch from "./elements/switch";
 import Motor from "./elements/motor";
 import ContextMenu from "./components/contextMenu";
 import ModalWindow from "./components/modalWindow";
-import store from "./redux/reducer";
-import {
-  contextMenuClose,
-  contextMenuOpen,
-  elementsArray
-} from "./redux/state";
+
 class Circuit {
   id: string;
   appBody: HTMLElement;
@@ -71,150 +66,153 @@ class Circuit {
     });
     this.appBody.append(this.layout);
     this.makeDraggable();
+    this.appBody.addEventListener("click", this.onClick.bind(this));
+    this.appBody.addEventListener("contextmenu", this.onContextMenu.bind(this));
   }
 
-  protected makeDraggable() {
-    const getMousePosition = (event: MouseEvent) => {
-      const CTM = this.layout.getScreenCTM();
-      return {
-        x: (event.clientX - CTM.e) / CTM.a,
-        y: (event.clientY - CTM.f) / CTM.d
-      };
+  protected getMousePosition(event: MouseEvent) {
+    const CTM = this.layout.getScreenCTM();
+    return {
+      x: (event.clientX - CTM.e) / CTM.a,
+      y: (event.clientY - CTM.f) / CTM.d
     };
-    const startDrag = (event: MouseEvent) => {
-      const elementTarget: SVGGElement = (
-        event.target as SVGPathElement
-      ).closest("[data-element-id]");
-      if (elementTarget) {
-        this.draggableElement = [
-          ...this.menuPanel.cirElements,
-          ...(this.modalBox.circElements as Element[])
-        ].find((elem) => {
-          return elem.id === elementTarget.dataset.elementId;
-        });
-        this.offset = getMousePosition(event);
-        const { x, y } = this.draggableElement;
-        this.offset.x -= Number(x);
-        this.offset.y -= Number(y);
-      }
-    };
+  }
 
-    const drag = (event: MouseEvent) => {
-      if (this.draggableElement) {
-        const cord = getMousePosition(event);
-        const parent: string = this.draggableElement.parent;
-        const x = cord.x - this.offset.x;
-        const y = cord.y - this.offset.y;
-        if (parent === "menu") {
-          this.draggableElement.setPosition(x, y);
-        } else if (
-          parent === "box" &&
-          x > this.modalBox.x1 &&
-          x < this.modalBox.x2 &&
-          y > this.modalBox.y1 &&
-          y < this.modalBox.y2
-        ) {
-          this.draggableElement.setPosition(x, y);
-          this.modalBox.setWiresPosition(this.draggableElement, { put: false });
-        }
-      } else if (this.modalBox.currentWire) {
-        const { x, y } = getMousePosition(event);
-        this.modalBox.onWireMove(x, y);
+  protected startDrag(event: MouseEvent) {
+    const elementTarget: SVGGElement =
+      (event.target as SVGPathElement).closest("[data-element-id]") ||
+      (event.target as SVGPathElement).closest("[data-node-id]");
+    if (elementTarget) {
+      this.draggableElement = [
+        ...this.menuPanel.cirElements,
+        ...(this.modalBox.circElements as Element[])
+      ].find((elem) => {
+        return elem.id === elementTarget.dataset.elementId;
+      });
+      console.log(this.draggableElement);
+      this.offset = this.getMousePosition(event);
+      const { x, y } = this.draggableElement;
+      this.offset.x -= Number(x);
+      this.offset.y -= Number(y);
+    }
+  }
+
+  protected drag(event: MouseEvent) {
+    if (this.draggableElement) {
+      const cord = this.getMousePosition(event);
+      const parent: string = this.draggableElement.parent;
+      const x = cord.x - this.offset.x;
+      const y = cord.y - this.offset.y;
+      if (parent === "menu") {
+        this.draggableElement.setPosition(x, y);
+      } else if (
+        parent === "box" &&
+        x > this.modalBox.x1 &&
+        x < this.modalBox.x2 &&
+        y > this.modalBox.y1 &&
+        y < this.modalBox.y2
+      ) {
+        this.draggableElement.setPosition(x, y);
+        this.modalBox.setWiresPosition(this.draggableElement, { put: false });
       }
-    };
-    const endDrag = (event: MouseEvent) => {
-      if (this.draggableElement) {
-        const cord = getMousePosition(event);
-        if (this.draggableElement.parent === "menu") {
-          if (
-            cord.x > this.modalBox.x1 &&
-            cord.x < this.modalBox.x2 &&
-            cord.y > this.modalBox.y1 &&
-            cord.y < this.modalBox.y2
-          ) {
-            this.menuPanel.cirElements = this.menuPanel.cirElements.filter(
-              (elem) => elem.id !== this.draggableElement.id
-            );
-            this.modalBox.circElements.push(this.draggableElement);
-            this.draggableElement.setParent("box");
-            this.draggableElement.setPosition(
-              roundTo(cord.x - this.offset.x),
-              roundTo(cord.y - this.offset.y)
-            );
-            const Element = this.modules.find(
-              (Module) => Module.type === this.draggableElement.type
-            );
-            const newElem = new Element("menu");
-            this.menuPanel.cirElements.push(newElem);
-            this.layout.append(
-              newElem.render(
-                this.draggableElement.xStart,
-                this.draggableElement.yStart
-              )
-            );
-          } else {
-            this.draggableElement.setPosition(
-              this.draggableElement.xStart,
-              this.draggableElement.yStart
-            );
-          }
-        } else if (this.draggableElement.parent === "box") {
+    } else if (this.modalBox.currentWire) {
+      const { x, y } = this.getMousePosition(event);
+      this.modalBox.onWireMove(x, y);
+    }
+  }
+
+  protected endDrag(event: MouseEvent) {
+    if (this.draggableElement) {
+      const cord = this.getMousePosition(event);
+      if (this.draggableElement.parent === "menu") {
+        if (
+          cord.x > this.modalBox.x1 &&
+          cord.x < this.modalBox.x2 &&
+          cord.y > this.modalBox.y1 &&
+          cord.y < this.modalBox.y2
+        ) {
+          this.menuPanel.cirElements = this.menuPanel.cirElements.filter(
+            (elem) => elem.id !== this.draggableElement.id
+          );
+          this.modalBox.circElements.push(this.draggableElement);
+          this.draggableElement.setParent("box");
           this.draggableElement.setPosition(
             roundTo(cord.x - this.offset.x),
             roundTo(cord.y - this.offset.y)
           );
-          this.modalBox.setWiresPosition(this.draggableElement, {
-            put: true
-          });
+          const Element = this.modules.find(
+            (Module) => Module.type === this.draggableElement.type
+          );
+          const newElem = new Element("menu");
+          this.menuPanel.cirElements.push(newElem);
+          this.layout.append(
+            newElem.render(
+              this.draggableElement.xStart,
+              this.draggableElement.yStart
+            )
+          );
+        } else {
+          this.draggableElement.setPosition(
+            this.draggableElement.xStart,
+            this.draggableElement.yStart
+          );
         }
-        this.draggableElement = null;
+      } else if (this.draggableElement.parent === "box") {
+        this.draggableElement.setPosition(
+          roundTo(cord.x - this.offset.x),
+          roundTo(cord.y - this.offset.y)
+        );
+        this.modalBox.setWiresPosition(this.draggableElement, {
+          put: true
+        });
       }
-    };
-    const onClick = (event: MouseEvent) => {
-      const cord = getMousePosition(event);
-      const target = event.target as HTMLElement;
-      if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
-        ModalWindow.toggle();
-      } else if (target.dataset.modalCloseId) {
-        ModalWindow.close();
-      } else if (target.dataset.contextMenuItemId) {
-        this.contextMenu.toggle(event);
-      } else if (
-        cord.x > this.modalBox.x1 &&
-        cord.x < this.modalBox.x2 &&
-        cord.y > this.modalBox.y1 &&
-        cord.y < this.modalBox.y2
-      ) {
-        this.contextMenu.close(event);
-        this.modalBox.onBoxClick(event, cord.x, cord.y);
-      }
-    };
+      this.draggableElement = null;
+    }
+  }
 
-    const onContextMenu = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      const cord = getMousePosition(event);
-      if (target.classList.contains("contextMenu__element")) {
-        this.contextMenu.close(event);
-      } else if (
-        cord.x > this.modalBox.x1 &&
-        cord.x < this.modalBox.x2 &&
-        cord.y > this.modalBox.y1 &&
-        cord.y < this.modalBox.y2
-      ) {
-        this.contextMenu.close(event);
-        if (target.closest("[data-element-id]")) {
-          store.dispatch(elementsArray(this.modalBox.circElements));
-          this.contextMenu.open(event, this.modalBox.circElements);
-        }
-      }
-    };
+  protected onClick(event: MouseEvent) {
+    const cord = this.getMousePosition(event);
+    const target = event.target as HTMLElement;
+    if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
+      ModalWindow.toggle();
+    } else if (target.dataset.modalCloseId) {
+      ModalWindow.close();
+    } else if (target.dataset.contextMenuItemId) {
+      this.contextMenu.toggle(event);
+    } else if (
+      cord.x > this.modalBox.x1 &&
+      cord.x < this.modalBox.x2 &&
+      cord.y > this.modalBox.y1 &&
+      cord.y < this.modalBox.y2
+    ) {
+      this.contextMenu.close(event);
+      this.modalBox.onBoxClick(event, cord.x, cord.y);
+    }
+  }
 
-    this.layout.addEventListener("mousedown", startDrag);
-    this.layout.addEventListener("mousemove", drag);
-    this.layout.addEventListener("mouseup", endDrag);
-    this.layout.addEventListener("mouseleave", endDrag);
-    this.appBody.addEventListener("click", onClick);
-    this.appBody.addEventListener("contextmenu", onContextMenu);
+  protected onContextMenu(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const cord = this.getMousePosition(event);
+    if (target.classList.contains("contextMenu__element")) {
+      this.contextMenu.close(event);
+    } else if (
+      cord.x > this.modalBox.x1 &&
+      cord.x < this.modalBox.x2 &&
+      cord.y > this.modalBox.y1 &&
+      cord.y < this.modalBox.y2
+    ) {
+      this.contextMenu.close(event);
+      if (target.closest("[data-element-id]")) {
+        this.contextMenu.open(event, this.modalBox.circElements);
+      }
+    }
+  }
+
+  protected makeDraggable() {
+    this.layout.addEventListener("mousedown", this.startDrag.bind(this));
+    this.layout.addEventListener("mousemove", this.drag.bind(this));
+    this.layout.addEventListener("mouseup", this.endDrag.bind(this));
+    this.layout.addEventListener("mouseleave", this.endDrag.bind(this));
   }
 }
 

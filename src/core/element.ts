@@ -10,7 +10,7 @@ export interface IOutput {
   wireId?: string;
 }
 
-interface IHitBox {
+export interface IHitBox {
   x1: number;
   x2: number;
   y1: number;

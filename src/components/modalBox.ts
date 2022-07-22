@@ -1,4 +1,4 @@
-import Element, { IOutput } from "../core/element";
+import Element from "../core/element";
 import { nanoid } from "nanoid";
 import Wire from "../elements/wire";
 import { roundTo } from "../utils/utils";
@@ -17,7 +17,6 @@ class ModalBox {
   y1 = 1;
   y2 = 2249;
   currentWire: Wire;
-
   render(): SVGGElement {
     this.init();
     return this.layout;
@@ -54,7 +53,7 @@ class ModalBox {
     x = roundTo(x);
     y = roundTo(y);
     this.currentWire.setPositionEnd(x, y);
-    const node = new Node(x, y);
+    const node = new Node({ x, y });
     this.layout.append(node.render());
 
     this.currentWire.element2 = node.id;
@@ -66,7 +65,9 @@ class ModalBox {
   }
 
   onWireJoin(outputElem: SVGRectElement) {
+    console.log(outputElem);
     const { x, y, element } = this.getWirePosition(outputElem);
+    console.log(element);
     this.currentWire.setPositionEnd(x, y);
     this.currentWire.element2 = element.id;
     this.circElements.push(this.currentWire);
@@ -87,14 +88,15 @@ class ModalBox {
 
   onWireStart(outputElem: SVGRectElement) {
     const { x, y, element } = this.getWirePosition(outputElem);
-    this.currentWire = new Wire(x, y, element.id);
+    console.log(element);
     const newOutputs = element.outputs.map((output) => {
       if (output.id === outputElem.dataset.outputId) {
         output.direction = "start";
-        output.wireId = this.currentWire.id;
+        output.wireId = element.id;
       }
       return output;
     });
+    this.currentWire = new Wire(x, y, element.id);
     element.outputs = [...newOutputs];
     this.layout.append(this.currentWire.render());
   }
