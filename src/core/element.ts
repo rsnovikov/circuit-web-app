@@ -79,6 +79,7 @@ abstract class Element {
     this.type = type;
     this.element.setAttribute("stroke", "black");
     this.element.setAttribute("fill", "transparent");
+    this.element.setAttribute("stroke-width", "2");
     this.layout.append(this.element);
     if (hitBox) {
       this.hitBox = hitBox;

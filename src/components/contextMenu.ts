@@ -5,6 +5,7 @@ import store from "../store/reducer";
 
 class ContextMenu {
   element: HTMLElement = document.createElement("ul");
+  modules: string[] = [];
   activeElement: Element;
 
   constructor() {
@@ -18,8 +19,7 @@ class ContextMenu {
     el.id = id;
     el.classList.add("contextMenu__element");
     el.dataset.contextMenuItemId = nanoid(8);
-    el.textContent =
-      toolName.slice(0, 1).toUpperCase() + toolName.slice(1).toLowerCase();
+    el.textContent = toolName;
     this.element.append(el);
   }
 
