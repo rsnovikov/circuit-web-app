@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import ModalWindow from "../components/modalWindow";
 import store from "../store/reducer";
 import { removeElement } from "../store/circuit";
 import Wire from "../elements/wire";
@@ -65,6 +64,7 @@ abstract class Element {
       method: this.rotateRight
     }
   ];
+
   protected constructor({
     d,
     type,
@@ -174,15 +174,51 @@ abstract class Element {
     this.layout.remove();
   }
 
-  rotate(degrees: number) {
+  rotateElement(degrees: number) {
     this.setRotate(degrees);
   }
 
   rotateLeft() {
-    this.rotate(-90);
+    this.rotateElement(-90);
+    this.rotate("left");
   }
+
   rotateRight() {
-    this.rotate(90);
+    this.rotateElement(90);
+    this.rotate("right");
+  }
+
+  rotate(direction: "left" | "right") {
+    this.outputs = this.outputs.map((output) => {
+      const { x, y } = output;
+      let newY = y;
+      let newX = x;
+      if (direction === "left") {
+        newY = -x;
+        newX = -y;
+      } else if (direction === "right") {
+        newY = x;
+        newX = y;
+      }
+
+      const updatedOutput = { ...output, x: newX, y: newY };
+      const circElements = store.getState().circuit.circElements;
+      const wire: Wire = circElements.find(
+        (elem) => elem.id === output.wireId
+      ) as Wire;
+      if (output.direction === "start") {
+        wire?.setPositionStart(
+          this.x + updatedOutput.x,
+          this.y + updatedOutput.y
+        );
+      } else if (output.direction === "end") {
+        wire?.setPositionEnd(
+          this.x + updatedOutput.x,
+          this.y + updatedOutput.y
+        );
+      }
+      return updatedOutput;
+    });
   }
 }
 
