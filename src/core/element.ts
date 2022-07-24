@@ -6,7 +6,6 @@ import Wire from "../elements/wire";
 export interface IOutput {
   x: number;
   y: number;
-  // deg: number;
   id?: string;
   direction?: "end" | "start";
   wireId?: string;
@@ -176,31 +175,31 @@ abstract class Element {
 
   rotateElement(degrees: number) {
     this.setRotate(degrees);
+    this.rotate(degrees);
   }
 
   rotateLeft() {
     this.rotateElement(-90);
-    this.rotate("left");
   }
 
   rotateRight() {
     this.rotateElement(90);
-    this.rotate("right");
   }
 
-  rotate(direction: "left" | "right") {
+  rotate(rotateDegs: number) {
     this.outputs = this.outputs.map((output) => {
       const { x, y } = output;
-      let newY = y;
-      let newX = x;
-      if (direction === "left") {
-        newY = -x;
-        newX = -y;
-      } else if (direction === "right") {
-        newY = x;
-        newX = y;
+      let newY;
+      let newX;
+      let xSign = 1;
+      let ySign = 1;
+      if (Math.sin(rotateDegs) > 0) {
+        xSign *= -1;
+      } else {
+        ySign *= -1;
       }
-
+      newY = ySign * x;
+      newX = xSign * y;
       const updatedOutput = { ...output, x: newX, y: newY };
       const circElements = store.getState().circuit.circElements;
       const wire: Wire = circElements.find(
