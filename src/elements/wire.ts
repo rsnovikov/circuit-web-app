@@ -12,6 +12,10 @@ class Wire {
   y2: number;
   id: string;
   type = "wire";
+  outputs: any = {
+    length: 2
+  };
+
   constructor(xStart: number, yStart: number, elem1: string) {
     this.id = nanoid(8);
     this.x1 = xStart;
@@ -39,6 +43,7 @@ class Wire {
     this.element.setAttribute("x2", String(x));
     this.element.setAttribute("y2", String(y));
   }
+
   setPositionStart(x: number, y: number) {
     this.x1 = x;
     this.y1 = y;
@@ -49,6 +54,25 @@ class Wire {
   remove() {
     this.element.remove();
     store.dispatch(removeElement({ id: this.id }));
+  }
+
+  getVoltageSourceCount(): number {
+    return 1;
+  }
+
+  hasGroundConnection(): boolean {
+    return false;
+  }
+
+  getConnection(n1: number, n2: number): boolean {
+    return true;
+  }
+  nonLinear() {
+    return false;
+  }
+
+  getPostCount() {
+    return this.outputs.length;
   }
 }
 

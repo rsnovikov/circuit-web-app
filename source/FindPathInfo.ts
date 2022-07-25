@@ -1,4 +1,4 @@
-import { Elements } from "../src/types";
+import { CircElement, Elements } from "../src/types";
 import Element from "../src/core/element";
 import Power from "../src/elements/power";
 
@@ -9,7 +9,7 @@ class FindPathInfo {
   static CAP_V: number = 4;
   private used: any[]; // boolean
   private dest: number;
-  private firstElm: Element;
+  private firstElm: CircElement;
   private type: number;
   private elmList: Elements; // может быть, а может быть и нет
 
@@ -17,7 +17,7 @@ class FindPathInfo {
     _elmList: Elements,
     nodes: number,
     t: number,
-    e: Element,
+    e: CircElement,
     d: number
   ) {
     this.elmList = _elmList;
@@ -74,7 +74,7 @@ class FindPathInfo {
         if (ce.getNode(j) == n1) break;
       }
       if (j == ce.getPostCount()) continue;
-      if (ce.hasGroundConnection(j) && findPath(0, depth)) {
+      if (ce.hasGroundConnection(j) && this.findPath(0, depth)) {
         //System.out.prnumberln(ce + " has ground");
         this.used[n1] = false;
         return true;

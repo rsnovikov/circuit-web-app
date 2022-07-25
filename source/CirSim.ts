@@ -4,35 +4,38 @@ import Ground from "../src/elements/ground";
 import Power from "../src/elements/power";
 import RowInfo from "./RowInfo";
 import FindPathInfo from "./FindPathInfo";
-
+import store from "../src/store/reducer";
+import { CircElement, Elements, Ponumber } from "../src/types";
+import CircuitNode from "./main/circuitNode";
+import CircuitNodeLink from "./main/circuitNodeLink";
 class CirSim {
   private dumpMatrix: boolean;
-  private analyzeFlag: boolean;
-  private circuitMatrix: [][];
-  circuitRightSide: [];
-  origRightSide: [];
-  origMatrix: [][];
+  // private analyzeFlag: boolean;
+  private circuitMatrix: any[][];
+  circuitRightSide: any[];
+  origRightSide: any[];
+  origMatrix: any[][];
 
   private circuitMatrixSize: number;
   circuitMatrixFullSize: number;
 
   private circuitBottom: number;
 
-  elmList: []; // Element
+  elmList: Elements; // Element
 
-  private voltageSources: [];
-  private nodeList: []; //CircuitNode
-  private circuitRowInfo: [];
-  private circuitPermute: [];
-  private circuitNonLinear: Boolean;
+  private voltageSources: any[];
+  private nodeList: any[]; //CircuitNode
+  private circuitRowInfo: any[];
+  private circuitPermute: any[];
+  private circuitNonLinear: boolean;
   private voltageSourceCount: number;
 
-  private circuitNeedsMap: Boolean;
+  private circuitNeedsMap: boolean;
 
   private t: number;
   private timeStep: number;
 
-  private layout: any;
+  // private layout: any;
 
   // CirSim(_l: Layout) {
   //     this.layout = _l;
@@ -50,15 +53,19 @@ class CirSim {
   //     }
   // }
 
-  newMatrix(rows: number, columns: number): [][] {
-    let arr: [][] = [];
-    let row: [] = this.newArray(columns);
+  constructor() {
+    this.elmList = store.getState().circuit.circElements;
+  }
+
+  newMatrix(rows: number, columns: number): any[][] {
+    let arr: any[][] = [];
+    let row: any[] = this.newArray(columns);
     for (let i = 0; i < rows; i++) arr.push(row);
     return arr;
   }
 
-  newArray(length: number): [] {
-    let arr: [] = [];
+  newArray(length: number): any[] {
+    let arr: any[] = [];
     for (let i = 0; i < length; i++) arr.push(0);
     return arr;
   }
@@ -66,34 +73,36 @@ class CirSim {
   private lastIterTime: number = 0;
   private steps: number = 0;
 
-  updateCircuit(): void {
-    if (this.analyzeFlag) {
-      this.analyzeCircuit();
-      this.analyzeFlag = false;
-    }
-    this.setupScopes();
-    //			if (!stoppedCheck.getState())
-    //			{
-    try {
-      this.runCircuit();
-    } catch (e: Error) {
-      //					e.prnumberStackTrace();
-      this.analyzeFlag = true;
-      return;
-    }
-    //			}
-  }
+  // TODO: not used
+  // updateCircuit(): void {
+  //   if (this.analyzeFlag) {
+  //     this.analyzeCircuit();
+  //     this.analyzeFlag = false;
+  //   }
+  //   // this.setupScopes();
+  //   //			if (!stoppedCheck.getState())
+  //   //			{
+  //   try {
+  //     this.runCircuit();
+  //   } catch (e: any) {
+  //     //					e.prnumberStackTrace();
+  //     this.analyzeFlag = true;
+  //     return;
+  //   }
+  //   //			}
+  // }
 
   // getCircuitNode(n: number): CircuitNode {                 //node вроде
   //     if (n >= this.nodeList.length)                        //ниже попробую переписать
   //         return null;
   //     return CircuitNode(this.nodeList[n]);
   // }
-  getCircuitNode(n: number): Node {
+
+  getCircuitNode(n: number): CircuitNode {
     if (n >= this.nodeList.length) return null;
     return this.nodeList[n];
   }
-  getElm(n: number): Element {
+  getElm(n: number): CircElement {
     if (n >= this.elmList.length)
       //вроде тоже не надо и мы просто буджем брать из массива в сторе
       return null;
@@ -110,9 +119,9 @@ class CirSim {
     this.nodeList = [];
     let gotGround: Boolean = false;
     let gotRail: Boolean = false;
-    let volt: Element = null;
+    let volt: CircElement = null;
 
-    let ce: Element;
+    let ce: CircElement;
     //trace("ac1");
     // look for voltage or ground element
     for (i = 0; i != this.elmList.length; i++) {
@@ -143,10 +152,11 @@ class CirSim {
     // allocate nodes and voltage sources
     //			trace("elmList: ", elmList.length);
     for (i = 0; i != this.elmList.length; i++) {
-      let ce: Element = this.getElm(i);
-      let inodes: number = ce.getnumberernalNodeCount(); //обе функции возвращают просто число лол
+      let ce: CircElement = this.getElm(i);
+      // let inodes: number = ce.getInternalNodeCount(); //обе функции возвращают просто число лол
+      let inodes: number = 0;
       let ivs: number = ce.getVoltageSourceCount();
-      let posts: number = ce.outputs.length; //возвращает количество аутпутов ce.
+      let posts: number = (ce as Element | Node).outputs.length; //возвращает количество аутпутов ce.
 
       //				trace("inodes = ", inodes, "; ivs = ", ivs, "; posts = ", posts);
 
@@ -155,7 +165,7 @@ class CirSim {
         let pt: Ponumber = ce.getPost(j);
         let k: number;
         for (k = 0; k != this.nodeList.length; k++) {
-          let cn: CircuitNode = getCircuitNode(k);
+          let cn: CircuitNode = this.getCircuitNode(k);
           //						trace("pt.x = ", pt.x, "; cn.x = ", cn.x, "; pt.y = ", pt.y, "; cn.y = ", cn.y);
           if (pt.x == cn.x && pt.y == cn.y) {
             //							trace("breaking!");
@@ -189,7 +199,7 @@ class CirSim {
       for (j = 0; j != inodes; j++) {
         let cn: CircuitNode = new CircuitNode();
         cn.x = cn.y = -1;
-        cn.numberernal = true;
+        cn.internal = true;
         let cnl: CircuitNodeLink = new CircuitNodeLink();
         cnl.num = j + posts;
         cnl.elm = ce;
@@ -207,7 +217,7 @@ class CirSim {
 
     // determine if circuit is nonlinear
     for (i = 0; i != this.elmList.length; i++) {
-      let ce: Element = this.getElm(i);
+      let ce: CircElement = this.getElm(i);
       if (ce.nonLinear()) this.circuitNonLinear = true;
       let ivs: number = ce.getVoltageSourceCount();
       for (j = 0; j != ivs; j++) {
@@ -234,31 +244,32 @@ class CirSim {
 
     // stamp linear circuit elements
     for (i = 0; i != this.elmList.length; i++) {
-      let ce: Element = this.getElm(i);
+      let ce: CircElement = this.getElm(i);
       ce.stamp();
     }
     //trace("ac4");
 
     // determine nodes that are unconnected
-    let closure: [] = this.newArray(this.nodeList.length); // boolean
+    let closure: any[] = this.newArray(this.nodeList.length); // boolean
     let changed: boolean = true;
     closure[0] = true; //опять очередное несовпадение типов
     while (changed) {
       changed = false;
       for (i = 0; i != this.elmList.length; i++) {
-        let ce: Element = this.getElm(i);
+        let ce: CircElement = this.getElm(i);
         // loop through all ce's nodes to see if they are connected
         // to other nodes not in closure
-        for (j = 0; j < ce.getPostCount(); j++) {
+        for (j = 0; j < ce.outputs.length; j++) {
           if (!closure[ce.getNode(j)]) {
             if (ce.hasGroundConnection(j))
               closure[ce.getNode(j)] = changed = true;
             continue;
           }
           let k: number;
-          for (k = 0; k != ce.getPostCount(); k++) {
+          for (k = 0; k != ce.outputs.length; k++) {
             if (j == k) continue;
             let kn: number = ce.getNode(k);
+            // TODO: create method getConnection for Relay, Relay3, TimeRelay
             if (ce.getConnection(j, k) && !closure[kn]) {
               closure[kn] = true;
               changed = true;
@@ -270,7 +281,7 @@ class CirSim {
 
       // connect unconnected nodes
       for (i = 0; i != this.nodeList.length; i++)
-        if (!closure[i] && !this.getCircuitNode(i).numberernal) {
+        if (!closure[i] && !this.getCircuitNode(i).internal) {
           // trace("node " + i + " unconnected"); хуету закоментил
           this.stampResistor(0, i, 1e8);
           closure[i] = true;
@@ -290,7 +301,7 @@ class CirSim {
     //trace("ac5");
 
     for (i = 0; i != this.elmList.length; i++) {
-      let ce: Element = this.getElm(i);
+      let ce: CircElement = this.getElm(i);
       // look for inductors with no current path
       /*				if (ce is InductorElm) {
                                 FindPathInfo fpi = new FindPathInfo(FindPathInfo.INDUCT, ce,
@@ -312,7 +323,7 @@ class CirSim {
                             }*/
       // look for voltage source loops
       if (
-        (ce.type == Power.type && ce.getPostCount() == 2) ||
+        (ce.type == Power.type && ce.outputs.length == 2) ||
         ce.type == "wire"
       ) {
         let fpi: FindPathInfo = new FindPathInfo(
@@ -354,11 +365,11 @@ class CirSim {
       let re: RowInfo = this.circuitRowInfo[i];
       /*trace("row " + i + " " + re.lsChanges + " " + re.rsChanges + " " + re.dropRow);*/
       if (re.lsChanges || re.dropRow || re.rsChanges) continue;
-      let rsadd: Number = 0;
+      let rsadd: number = 0;
 
       // look for rows that can be removed
       for (j = 0; j != matrixSize; j++) {
-        let q: Number = this.circuitMatrix[i][j];
+        let q: number = this.circuitMatrix[i][j];
         if (this.circuitRowInfo[j].type == RowInfo.ROW_CONST) {
           //типы
           // keep a running total of const values that have been
@@ -494,8 +505,8 @@ class CirSim {
 
     // make the new, simplified matrix
     let newsize: number = nn;
-    let newmatx: [][] = this.newMatrix(newsize, newsize); // double
-    let newrs: [] = this.newArray(newsize); // double
+    let newmatx: any[][] = this.newMatrix(newsize, newsize); // double
+    let newrs: any[] = this.newArray(newsize); // double
     let ii: number = 0;
     for (i = 0; i != matrixSize; i++) {
       let rri: RowInfo = this.circuitRowInfo[i];
@@ -544,7 +555,7 @@ class CirSim {
           this.circuitPermute
         )
       ) {
-        trace("Singular matrix!"); // stop
+        console.error("Singular matrix!"); // stop
         return;
       }
     }
@@ -562,7 +573,7 @@ class CirSim {
   }
 
   // stamp independent voltage source #vs, from n1 to n2, amount v
-  stampVoltageSource(n1: number, n2: number, vs: number, v: Number): void {
+  stampVoltageSource(n1: number, n2: number, vs: number, v: number): void {
     let vn: number = this.nodeList.length + vs;
     //			trace("Stamping voltage");
     //			trace(n1,n2,vs,v);
@@ -617,7 +628,7 @@ class CirSim {
 
   // stamp value x on the right side of row i, representing an
   // independent current source flowing numbero node i
-  stampRightSide(i: number, x: Number): void {
+  stampRightSide(i: number, x: number): void {
     if (i > 0) {
       if (this.circuitNeedsMap) {
         i = this.circuitRowInfo[i - 1].mapRow;
@@ -646,10 +657,11 @@ class CirSim {
     if (1000 >= steprate * (tm - this.lastIterTime)) return;
     for (iter = 1; ; iter++) {
       let i: number, j: number, k: number, subiter: number;
-      for (i = 0; i != this.elmList.length; i++) {
-        let ce: Element = this.getElm(i);
-        ce.startIteration();
-      }
+      // TODO: startIteration is empty in Element
+      // for (i = 0; i != this.elmList.length; i++) {
+      //   let ce: CircElement = this.getElm(i);
+      //   ce.startIteration();
+      // }
       this.steps++;
       for (subiter = 0; subiter != this.subiterCount; subiter++) {
         this.converged = true;
@@ -661,10 +673,11 @@ class CirSim {
             for (j = 0; j != this.circuitMatrixSize; j++)
               this.circuitMatrix[i][j] = this.origMatrix[i][j];
         }
-        for (i = 0; i != this.elmList.length; i++) {
-          let ce = this.getElm(i); //добавил объявление, иначе не видит переменную
-          ce.doStep();
-        }
+        // TODO: doStep is empty in Element
+        // for (i = 0; i != this.elmList.length; i++) {
+        //   let ce = this.getElm(i); //добавил объявление, иначе не видит переменную
+        //   ce.doStep();
+        // }
         //					if (stopMessage != null)
         //				    	return;
         let prnumberit: Boolean = debugprnumber;
@@ -722,7 +735,9 @@ class CirSim {
           if (j < this.nodeList.length - 1) {
             let cn: CircuitNode = this.getCircuitNode(j + 1);
             for (k = 0; k != cn.links.length; k++) {
-              let cnl: CircuitNodeLink = CircuitNodeLink(cn.links[k]);
+              // TODO: CircuitNodeLink don't have constructor
+              // let cnl: CircuitNodeLink = CircuitNodeLink(cn.links[k]);
+              let cnl: CircuitNodeLink = cn.links[k];
               cnl.elm.setNodeVoltage(cnl.num, res);
             }
           } else {
@@ -760,8 +775,8 @@ class CirSim {
   // matrix to be factored.  ipvt[] returns an numbereger vector of pivot
   // indices, used in the lu_solve() routine.
 
-  lu_factor(a: [][], n: number, ipvt: []): Boolean {
-    let scaleFactors: []; // double
+  lu_factor(a: any[][], n: number, ipvt: any[]): Boolean {
+    let scaleFactors: any[]; // double
     let i: number, j: number, k: number;
 
     scaleFactors = this.newArray(n);
@@ -804,7 +819,7 @@ class CirSim {
 
       // pivoting
       if (j != largestRow) {
-        let x: Number;
+        let x: number;
         for (k = 0; k != n; k++) {
           x = a[largestRow][k];
           a[largestRow][k] = a[j][k];
@@ -834,7 +849,7 @@ class CirSim {
   // previously performed by lu_factor.  On input, b[0..n-1] is the right
   // hand side of the equations, and on output, contains the solution.
 
-  lu_solve(a: [][], n: number, ipvt: [], b: []): void {
+  lu_solve(a: any[][], n: number, ipvt: any[], b: any[]): void {
     let i: number;
 
     // find first nonzero b element

@@ -219,6 +219,26 @@ abstract class Element {
       return updatedOutput;
     });
   }
+
+  getVoltageSourceCount(): number {
+    return 0;
+  }
+
+  hasGroundConnection(n1: number): boolean {
+    return false;
+  }
+
+  nonLinear() {
+    return false;
+  }
+
+  getPostCount() {
+    return this.outputs.length;
+  }
+
+  getConnection(n1: number, n2: number): boolean {
+    return true;
+  }
 }
 
 export default Element;

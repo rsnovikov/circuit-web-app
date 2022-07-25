@@ -90,6 +90,25 @@ class Node {
     };
     this.outputs.push(newOutput);
   }
+
+  getVoltageSourceCount(): number {
+    return 1;
+  }
+
+  hasGroundConnection(): boolean {
+    return false;
+  }
+  getConnection(n1: number, n2: number): boolean {
+    return true;
+  }
+
+  nonLinear() {
+    return false;
+  }
+
+  getPostCount() {
+    return this.outputs.length;
+  }
 }
 
 export default Node;

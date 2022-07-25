@@ -3,7 +3,7 @@ import { ElementTypes } from "../enums";
 
 class Key extends Element {
   static type: string = ElementTypes.key;
-
+  isOpen: boolean = true;
   constructor(parent: "menu" | "box" = "menu") {
     super({
       d: `
@@ -38,6 +38,10 @@ class Key extends Element {
         }
       ]
     });
+  }
+
+  getConnection(n1: number, n2: number): boolean {
+    return this.isOpen;
   }
 }
 

@@ -32,6 +32,9 @@ class Ground extends Element {
       ]
     });
   }
+  hasGroundConnection(): boolean {
+    return true;
+  }
 }
 
 export default Ground;
