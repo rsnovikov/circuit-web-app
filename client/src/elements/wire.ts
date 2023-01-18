@@ -3,7 +3,7 @@ import store from "../store/reducer";
 import { removeElement } from "../store/circuit";
 
 class Wire {
-  element: SVGLineElement;
+  layout: SVGLineElement;
   element1: string;
   element2: string;
   x1: number;
@@ -11,6 +11,7 @@ class Wire {
   y1: number;
   y2: number;
   id: string;
+  parent = "box";
   type = "wire";
   outputs: any = {
     length: 2
@@ -20,39 +21,39 @@ class Wire {
     this.id = nanoid(8);
     this.x1 = xStart;
     this.y1 = yStart;
-    this.element = document.createElementNS(
+    this.layout = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "line"
     );
-    this.element.setAttribute("x1", String(xStart));
-    this.element.setAttribute("x2", String(xStart));
+    this.layout.setAttribute("x1", String(xStart));
+    this.layout.setAttribute("x2", String(xStart));
     this.element1 = elem1;
-    this.element.setAttribute("y1", String(yStart));
-    this.element.setAttribute("y2", String(yStart));
-    this.element.setAttribute("stroke", "blue");
-    this.element.dataset.wireId = this.id;
+    this.layout.setAttribute("y1", String(yStart));
+    this.layout.setAttribute("y2", String(yStart));
+    this.layout.setAttribute("stroke", "blue");
+    this.layout.dataset.wireId = this.id;
   }
 
   render() {
-    return this.element;
+    return this.layout;
   }
 
   setPositionEnd(x: number, y: number) {
     this.x2 = x;
     this.y2 = y;
-    this.element.setAttribute("x2", String(x));
-    this.element.setAttribute("y2", String(y));
+    this.layout.setAttribute("x2", String(x));
+    this.layout.setAttribute("y2", String(y));
   }
 
   setPositionStart(x: number, y: number) {
     this.x1 = x;
     this.y1 = y;
-    this.element.setAttribute("x1", String(x));
-    this.element.setAttribute("y1", String(y));
+    this.layout.setAttribute("x1", String(x));
+    this.layout.setAttribute("y1", String(y));
   }
 
   remove() {
-    this.element.remove();
+    this.layout.remove();
     store.dispatch(removeElement({ id: this.id }));
   }
 

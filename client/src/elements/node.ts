@@ -20,10 +20,9 @@ class Node {
   );
   elHitBox: SVGRectElement;
   outputs: IOutput[] = [];
-  parent: string;
+  parent = "box";
   endWireId: string;
   constructor({ x, y, endWireId }: INodeProps) {
-    this.parent = "box";
     this.x = x;
     this.y = y;
     this.id = nanoid(8);

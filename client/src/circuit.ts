@@ -14,6 +14,8 @@ import ContextMenu from "./components/contextMenu";
 import ModalWindow from "./components/modalWindow";
 import store from "./store/reducer";
 import { addElement } from "./store/circuit";
+import Navbar from "./components/navbar";
+import CircuitController from "../circuit.controller";
 
 class Circuit {
   id: string;
@@ -29,12 +31,14 @@ class Circuit {
   contextMenu: ContextMenu;
   modalWindow: ModalWindow;
   modules: any[] = [Power, Lamp, Resistor, Ground, Key, Relay, Switch, Motor];
+  navbar: Navbar;
+  circuitController: CircuitController;
 
   constructor(id: string) {
     this.id = id;
     this.appBody = document.getElementById(id);
     this.appBody.style.height = "750px";
-    this.appBody.style.padding = "30px";
+    // this.appBody.style.padding = "30px";
     this.layout.setAttribute("width", "750");
     this.layout.setAttribute("height", "750");
     this.layout.setAttribute("viewBox", "0 0 2250 2250");
@@ -42,13 +46,16 @@ class Circuit {
     this.modalBox = new ModalBox();
     this.contextMenu = new ContextMenu();
     this.modalWindow = new ModalWindow();
+    this.navbar = new Navbar();
+    this.circuitController = new CircuitController();
   }
 
   start(): void {
     this.appBody.append(this.contextMenu.render());
+    this.appBody.append(this.modalWindow.render());
+this.appBody.append(this.navbar.render());
     this.layout.append(this.menuPanel.render());
     this.layout.append(this.modalBox.render());
-    this.appBody.append(this.modalWindow.render());
     const startX = this.menuPanel.xElement;
     this.modules.forEach((Module) => {
       const element = new Module("menu");
@@ -178,7 +185,9 @@ class Circuit {
   protected onClick(event: MouseEvent) {
     const cord = this.getMousePosition(event);
     const target = event.target as HTMLElement;
-    if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
+    if (target.dataset.controllerType) {
+      this.circuitController.onClick(event);
+    } else if (target.dataset.inputId && /\d+/.test(ModalWindow.input.value)) {
       ModalWindow.toggle();
     } else if (target.dataset.modalCloseId) {
       ModalWindow.close();

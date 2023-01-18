@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as HtmlWebpackPlugin from "html-webpack-plugin";
 import { Configuration } from "webpack";
+import * as ESLintWebpackPlugin from "eslint-webpack-plugin";
 import "webpack-dev-server";
 
 const config: Configuration = {
@@ -21,6 +22,7 @@ const config: Configuration = {
       template: path.resolve(__dirname, "src", "index.html"),
       filename: "index.html",
     }),
+    new ESLintWebpackPlugin()
   ],
   module: {
     rules: [
@@ -48,6 +50,7 @@ const config: Configuration = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
+
 };
 
 export default config;
